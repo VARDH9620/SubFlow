@@ -1,0 +1,116 @@
+import { useEffect, useState } from 'react';
+import { Activity as ActivityIcon, Clock, Globe, Download } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+import * as db from '../../db/database';
+import { PageHeader, Badge, SearchBar, Button, EmptyState } from '../../components/ui';
+import type { AuditEntry } from '../../db/database';
+
+const actionColors: Record<string, 'info' | 'success' | 'warning' | 'danger' | 'default'> = {
+  login: 'info', create: 'success', update: 'info', delete: 'danger',
+  payment: 'success', cancel: 'warning', subscribe: 'success', refund: 'warning',
+};
+
+const actionIcons: Record<string, string> = {
+  login: '🔐', create: '✨', update: '✏️', delete: '🗑️',
+  payment: '💳', cancel: '❌', subscribe: '📦', refund: '↩️',
+};
+
+export default function ActivityLog() {
+  const { user, addToast } = useAuth();
+  const [logs, setLogs] = useState<AuditEntry[]>([]);
+  const [search, setSearch] = useState('');
+
+  useEffect(() => {
+    if (!user) return;
+    // Generate some seed activity
+    const seedLogs = [
+      { action: 'login', entity_type: 'session', entity_id: '', details: 'Logged in from Chrome on macOS' },
+      { action: 'subscribe', entity_type: 'subscription', entity_id: '', details: 'Subscribed to Cloud Storage Pro — Starter' },
+      { action: 'payment', entity_type: 'invoice', entity_id: '', details: 'Payment of $11.79 processed (Visa •••• 4242)' },
+      { action: 'update', entity_type: 'profile', entity_id: '', details: 'Updated phone number' },
+      { action: 'create', entity_type: 'ticket', entity_id: '', details: 'Created support ticket: "Storage quota not updating"' },
+      { action: 'login', entity_type: 'session', entity_id: '', details: 'Logged in from Safari on iPhone' },
+      { action: 'subscribe', entity_type: 'subscription', entity_id: '', details: 'Subscribed to DevOps Pipeline — Basic' },
+      { action: 'payment', entity_type: 'invoice', entity_id: '', details: 'Payment of $23.59 processed (Visa •••• 4242)' },
+      { action: 'update', entity_type: 'subscription', entity_id: '', details: 'Paused Cloud Storage Pro subscription' },
+      { action: 'login', entity_type: 'session', entity_id: '', details: 'Logged in from Firefox on Windows' },
+      { action: 'payment', entity_type: 'invoice', entity_id: '', details: 'Payment of $23.59 processed (Visa •••• 4242)' },
+      { action: 'update', entity_type: 'profile', entity_id: '', details: 'Changed password' },
+    ];
+    seedLogs.forEach((l, i) => {
+      const d = new Date(); d.setHours(d.getHours() - i * 5);
+      db.addAuditLog(user.id, l.action, l.entity_type, l.entity_id, l.details);
+    });
+    setLogs(db.getUserActivityLog(user.id));
+  }, [user]);
+
+  const filtered = logs.filter(l =>
+    l.action.toLowerCase().includes(search.toLowerCase()) ||
+    l.details.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const formatTime = (date: string) => {
+    const d = new Date(date);
+    const now = new Date();
+    const diff = Math.floor((now.getTime() - d.getTime()) / 60000);
+    if (diff < 1) return 'Just now';
+    if (diff < 60) return `${diff}m ago`;
+    if (diff < 1440) return `${Math.floor(diff / 60)}h ago`;
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+  };
+
+  return (
+    <div className="animate-fadeIn max-w-3xl">
+      <PageHeader
+        title="Activity Log"
+        description="Track all actions on your account"
+        action={
+          <Button variant="outline" size="sm" onClick={() => { addToast('Activity exported', 'success'); }} className="gap-2">
+            <Download className="w-4 h-4" /> Export
+          </Button>
+        }
+      />
+
+      <div className="mb-6 max-w-sm">
+        <SearchBar value={search} onChange={setSearch} placeholder="Search activity..." />
+      </div>
+
+      {filtered.length === 0 ? (
+        <EmptyState icon={<ActivityIcon className="w-10 h-10" />} title="No activity yet" description="Your account activity will appear here" />
+      ) : (
+        <div className="relative">
+          {/* Timeline line */}
+          <div className="absolute left-[19px] top-2 bottom-2 w-0.5 bg-gray-200 dark:bg-slate-700" />
+
+          <div className="space-y-1">
+            {filtered.map((log, i) => (
+              <div key={log.id + i} className="relative flex gap-4 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors group">
+                {/* Dot */}
+                <div className={`relative z-10 w-10 h-10 rounded-full flex items-center justify-center text-sm flex-shrink-0 ${
+                  log.action === 'login' ? 'bg-blue-50 dark:bg-blue-900/30' :
+                  log.action === 'payment' ? 'bg-emerald-50 dark:bg-emerald-900/30' :
+                  log.action === 'subscribe' ? 'bg-purple-50 dark:bg-purple-900/30' :
+                  log.action === 'delete' ? 'bg-red-50 dark:bg-red-900/30' :
+                  'bg-gray-50 dark:bg-slate-700'
+                }`}>
+                  {actionIcons[log.action] || '📋'}
+                </div>
+                <div className="flex-1 min-w-0 pt-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-sm font-medium text-gray-900 dark:text-slate-100 capitalize">{log.action.replace('_', ' ')}</span>
+                    <Badge variant={actionColors[log.action] || 'default'}>{log.entity_type}</Badge>
+                  </div>
+                  <p className="text-sm text-gray-600 dark:text-slate-300 mt-0.5">{log.details}</p>
+                  <div className="flex items-center gap-3 mt-1.5 text-xs text-gray-400 dark:text-slate-400">
+                    <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {formatTime(log.created_at)}</span>
+                    <span className="flex items-center gap-1"><Globe className="w-3 h-3" /> {log.ip_address}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
