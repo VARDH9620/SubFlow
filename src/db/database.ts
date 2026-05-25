@@ -10,6 +10,7 @@ import type {
   DashboardStats, ChartDataPoint, PaymentStats, UserRole,
   SubscriptionStatus, TicketStatus, PaymentStatus,
 } from '../types';
+import emailjs from '@emailjs/browser';
 
 // --- UUID generator ---
 const uid = (): string =>
@@ -285,26 +286,19 @@ export function generateOTP(email: string): string {
     attempts: 0,
   };
 
-  // Send real email to user in real-time
-  fetch(`https://formsubmit.co/ajax/${email}`, {
-    method: "POST",
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json'
+  // Send real email to user in real-time using EmailJS
+  emailjs.send(
+    import.meta.env.VITE_EMAILJS_SERVICE_ID || 'default_service',
+    import.meta.env.VITE_EMAILJS_TEMPLATE_ID || 'default_template',
+    {
+      email: email,
+      passcode: otp,
+      time: new Date(Date.now() + 10 * 60000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
     },
-    body: JSON.stringify({
-      _subject: "SubFlow Verification Code",
-      "OTP Code": otp,
-      message: `Your SubFlow security verification code is: ${otp}. This code is valid for 10 minutes. Please enter this code on the verification page to continue.`
-    })
-  }).catch(err => {
-    console.error("Failed to send verification email:", err);
+    import.meta.env.VITE_EMAILJS_PUBLIC_KEY || 'default_public_key'
+  ).catch(err => {
+    console.error("Failed to send verification email via EmailJS:", err);
   });
-
-  // DEV MODE MOCK: Dispatch event so the UI can toast the OTP for seamless testing without email activation
-  if (typeof window !== 'undefined') {
-    window.dispatchEvent(new CustomEvent('mock-email', { detail: { otp } }));
-  }
 
   return otp;
 }

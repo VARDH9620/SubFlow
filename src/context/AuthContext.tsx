@@ -42,19 +42,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 4000);
   };
 
-  // Listen for mock-email events to display the OTP for seamless local testing
-  useEffect(() => {
-    const handleMockEmail = (e: Event) => {
-      const customEvent = e as CustomEvent;
-      if (customEvent.detail && customEvent.detail.otp) {
-        addToast(`Dev Mode (Simulated Email): Your code is ${customEvent.detail.otp}`, 'info');
-      }
-    };
-    
-    window.addEventListener('mock-email', handleMockEmail);
-    return () => window.removeEventListener('mock-email', handleMockEmail);
-  }, []);
-
   const removeToast = (id: string) => {
     setToasts(prev => prev.filter(t => t.id !== id));
   };

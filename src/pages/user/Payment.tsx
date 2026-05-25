@@ -11,6 +11,7 @@ import { Card, Button, Input, Badge, PageHeader, EmptyState } from '../../compon
 import { CreditCardVisual } from '../../components/ui/CreditCard';
 import { generateInvoicePDF } from '../../utils/invoicePdf';
 import type { Invoice, PaymentMethod, Payment } from '../../types';
+import emailjs from '@emailjs/browser';
 
 type Step = 'select' | 'method' | 'details' | 'otp' | 'processing' | 'success' | 'failure';
 
@@ -121,27 +122,20 @@ export default function PaymentPage() {
     setPaymentOtp(code);
     setEmailSending(true);
     try {
-      await fetch(`https://formsubmit.co/ajax/${user.email}`, {
-        method: "POST",
-        headers: { 
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
+      await emailjs.send(
+        import.meta.env.VITE_EMAILJS_SERVICE_ID || 'default_service',
+        import.meta.env.VITE_EMAILJS_TEMPLATE_ID || 'default_template',
+        {
+          email: user.email,
+          passcode: code,
+          time: new Date(Date.now() + 10 * 60000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
         },
-        body: JSON.stringify({
-          _subject: "SubFlow Payment Verification Code",
-          "Verification Code": code,
-          message: `Your SubFlow payment verification code is: ${code}. This code is valid for 10 minutes. Please enter this code to authorize the transaction of $${selectedInvoice?.total.toFixed(2)}.`
-        })
-      });
+        import.meta.env.VITE_EMAILJS_PUBLIC_KEY || 'default_public_key'
+      );
     } catch (e) {
-      console.error("Failed to send payment OTP email:", e);
+      console.error("Failed to send payment OTP email via EmailJS:", e);
     } finally {
       setEmailSending(false);
-      
-      // DEV MODE MOCK: Dispatch event so the UI can toast the OTP for seamless testing without email activation
-      if (typeof window !== 'undefined') {
-        window.dispatchEvent(new CustomEvent('mock-email', { detail: { otp: code } }));
-      }
     }
   };
 
