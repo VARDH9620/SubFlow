@@ -34,7 +34,7 @@ export default function Login() {
 
   return (
     <div className="min-h-screen flex">
-      <div className="hidden lg:flex lg:w-1/2 bg-primary-600 relative overflow-hidden flex-col justify-center px-12">
+      <div className="hidden lg:flex lg:w-1/2 bg-primary relative overflow-hidden flex-col justify-center px-12">
         <div className="absolute inset-0 bg-gradient-to-br from-primary-600 to-primary-800" />
         <div className="relative z-10">
           <div className="flex items-center gap-2.5 mb-12">
@@ -55,18 +55,18 @@ export default function Login() {
         <div className="absolute -top-20 -right-20 w-64 h-64 bg-white/5 rounded-full" />
       </div>
 
-      <div className="flex-1 flex items-center justify-center px-6 py-12 bg-white dark:bg-slate-900">
+      <div className="flex-1 flex items-center justify-center px-6 py-12 bg-card">
         <div className="w-full max-w-sm">
           <div className="flex items-center justify-between mb-8">
             <Link to="/" className="lg:hidden flex items-center gap-2">
-              <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center"><Zap className="w-4 h-4 text-white" /></div>
-              <span className="text-lg font-bold text-gray-900 dark:text-slate-100">SubFlow</span>
+              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center"><Zap className="w-4 h-4 text-white" /></div>
+              <span className="text-lg font-bold text-foreground">SubFlow</span>
             </Link>
             <ThemeToggle compact />
           </div>
 
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Sign in to your account</h1>
-          <p className="mt-2 text-sm text-gray-500 dark:text-slate-300">Don't have an account? <Link to="/register" className="text-primary-600 dark:text-primary-400 font-medium hover:text-primary-700">Sign up</Link></p>
+          <h1 className="text-2xl font-bold text-foreground">Sign in to your account</h1>
+          <p className="mt-2 text-sm text-muted-foreground dark:text-slate-300">Don't have an account? <Link to="/register" className="text-primary font-medium hover:text-primary/90">Sign up</Link></p>
 
           {error && <div className="mt-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 text-sm rounded-lg">{error}</div>}
 
@@ -74,7 +74,7 @@ export default function Login() {
             <Input label="Email address" type="email" value={email} onChange={e => setEmail(e.target.value)} required placeholder="you@example.com" />
             <div className="relative">
               <Input label="Password" type={showPw ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} required placeholder="••••••••" />
-              <button type="button" onClick={() => setShowPw(!showPw)} className="absolute right-3 top-[34px] text-gray-400 dark:text-slate-400 hover:text-gray-600 dark:hover:text-slate-300">
+              <button type="button" onClick={() => setShowPw(!showPw)} className="absolute right-3 top-[34px] text-muted-foreground/80 dark:text-slate-400 hover:text-muted-foreground dark:hover:text-slate-300">
                 {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
@@ -88,7 +88,7 @@ export default function Login() {
                     onChange={e => setRememberMe(e.target.checked)}
                     className="sr-only peer"
                   />
-                  <span className="w-4 h-4 rounded border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 peer-checked:bg-primary-600 peer-checked:border-primary-600 transition-colors flex items-center justify-center">
+                  <span className="w-4 h-4 rounded border border-input bg-card peer-checked:bg-primary peer-checked:border-primary-600 transition-colors flex items-center justify-center">
                     {rememberMe && (
                       <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 10 8" stroke="currentColor" strokeWidth={2.5}>
                         <path d="M1 4l2.5 2.5L9 1" strokeLinecap="round" strokeLinejoin="round" />
@@ -96,9 +96,9 @@ export default function Login() {
                     )}
                   </span>
                 </span>
-                <span className="text-sm text-gray-600 dark:text-slate-300">Stay logged in</span>
+                <span className="text-sm text-muted-foreground dark:text-slate-300">Stay logged in</span>
               </label>
-              <Link to="/forgot-password" className="text-xs text-primary-600 dark:text-primary-400 font-medium hover:text-primary-700">Forgot password?</Link>
+              <Link to="/forgot-password" className="text-xs text-primary font-medium hover:text-primary/90">Forgot password?</Link>
             </div>
             <Button type="submit" loading={loading} className="w-full">Sign in</Button>
           </form>

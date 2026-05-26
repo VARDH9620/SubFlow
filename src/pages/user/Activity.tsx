@@ -84,24 +84,24 @@ export default function ActivityLog() {
 
           <div className="space-y-1">
             {filtered.map((log, i) => (
-              <div key={log.id + i} className="relative flex gap-4 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors group">
+              <div key={log.id + i} className="relative flex gap-4 p-3 rounded-xl hover:bg-muted transition-colors group">
                 {/* Dot */}
                 <div className={`relative z-10 w-10 h-10 rounded-full flex items-center justify-center text-sm flex-shrink-0 ${
                   log.action === 'login' ? 'bg-blue-50 dark:bg-blue-900/30' :
                   log.action === 'payment' ? 'bg-emerald-50 dark:bg-emerald-900/30' :
                   log.action === 'subscribe' ? 'bg-purple-50 dark:bg-purple-900/30' :
                   log.action === 'delete' ? 'bg-red-50 dark:bg-red-900/30' :
-                  'bg-gray-50 dark:bg-slate-700'
+                  'bg-muted/50 dark:bg-slate-700'
                 }`}>
                   {actionIcons[log.action] || '📋'}
                 </div>
                 <div className="flex-1 min-w-0 pt-1">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-sm font-medium text-gray-900 dark:text-slate-100 capitalize">{log.action.replace('_', ' ')}</span>
+                    <span className="text-sm font-medium text-foreground capitalize">{log.action.replace('_', ' ')}</span>
                     <Badge variant={actionColors[log.action] || 'default'}>{log.entity_type}</Badge>
                   </div>
-                  <p className="text-sm text-gray-600 dark:text-slate-300 mt-0.5">{log.details}</p>
-                  <div className="flex items-center gap-3 mt-1.5 text-xs text-gray-400 dark:text-slate-400">
+                  <p className="text-sm text-muted-foreground dark:text-slate-300 mt-0.5">{log.details}</p>
+                  <div className="flex items-center gap-3 mt-1.5 text-xs text-muted-foreground/80 dark:text-slate-400">
                     <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {formatTime(log.created_at)}</span>
                     <span className="flex items-center gap-1"><Globe className="w-3 h-3" /> {log.ip_address}</span>
                   </div>

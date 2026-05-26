@@ -58,20 +58,20 @@ export default function Services() {
           return (
             <Card key={svc.id} className="hover:shadow-md transition-shadow">
               <div className="flex items-start gap-4 mb-4">
-                <div className="p-3 bg-primary-50 dark:bg-primary-500/10 text-primary-600 dark:text-primary-400 rounded-xl">
+                <div className="p-3 bg-primary-50 dark:bg-primary-500/10 text-primary rounded-xl">
                   {iconMap[svc.icon] || <Cloud className="w-6 h-6" />}
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-semibold text-gray-900 dark:text-slate-100">{svc.name}</h3>
+                  <h3 className="font-semibold text-foreground">{svc.name}</h3>
                   <Badge className="mt-1">{svc.category}</Badge>
                 </div>
               </div>
-              <p className="text-sm text-gray-500 dark:text-slate-300 mb-4">{svc.description}</p>
-              <div className="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-dark-surface-3/60">
+              <p className="text-sm text-muted-foreground dark:text-slate-300 mb-4">{svc.description}</p>
+              <div className="flex items-center justify-between pt-4 border-t border-border/50 dark:border-dark-surface-3/60">
                 <div>
-                  <span className="text-lg font-bold text-gray-900 dark:text-white">${minPrice.toFixed(2)}</span>
-                  <span className="text-xs text-gray-500 dark:text-slate-300">/mo</span>
-                  <p className="text-xs text-gray-400 dark:text-slate-400">{svcPlansCount} plans available</p>
+                  <span className="text-lg font-bold text-foreground dark:text-white">${minPrice.toFixed(2)}</span>
+                  <span className="text-xs text-muted-foreground dark:text-slate-300">/mo</span>
+                  <p className="text-xs text-muted-foreground/80 dark:text-slate-400">{svcPlansCount} plans available</p>
                 </div>
                 <Button size="sm" onClick={() => { setSelectedSvc(svc); setShowPlans(true); }}>
                   View Plans
@@ -84,10 +84,10 @@ export default function Services() {
 
       {/* Plans Modal */}
       <Modal open={showPlans} onClose={() => { setShowPlans(false); setSelectedSvc(null); }} title={selectedSvc?.name || 'Plans'} size="lg">
-        <p className="text-sm text-gray-500 dark:text-slate-300 mb-6">{selectedSvc?.description}</p>
+        <p className="text-sm text-muted-foreground dark:text-slate-300 mb-6">{selectedSvc?.description}</p>
         <div className="space-y-4">
           {svcPlans.map(plan => (
-            <div key={plan.id} className="p-4 border border-gray-200 dark:border-dark-surface-3/60 rounded-xl hover:border-primary-300 dark:hover:border-primary-500/50 transition-colors">
+            <div key={plan.id} className="p-4 border border-border dark:border-dark-surface-3/60 rounded-xl hover:border-primary-300 dark:hover:border-primary-500/50 transition-colors">
               <div className="flex items-start justify-between">
                 <div>
                   <h4 className="font-semibold text-blue-900 dark:text-blue-100">{plan.name}</h4>

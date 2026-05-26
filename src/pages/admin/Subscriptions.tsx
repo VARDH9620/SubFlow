@@ -52,30 +52,30 @@ export default function AdminSubscriptions() {
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-gray-200 dark:border-dark-surface-3/60">
-                <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500 dark:text-slate-300 uppercase">User</th>
-                <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500 dark:text-slate-300 uppercase">Service</th>
-                <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500 dark:text-slate-300 uppercase">Plan</th>
-                <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500 dark:text-slate-300 uppercase">Price</th>
-                <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500 dark:text-slate-300 uppercase">Status</th>
-                <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500 dark:text-slate-300 uppercase">Start</th>
-                <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500 dark:text-slate-300 uppercase">End</th>
-                <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500 dark:text-slate-300 uppercase">Auto</th>
-                <th className="text-right py-3 px-4 text-xs font-semibold text-gray-500 dark:text-slate-300 uppercase">Action</th>
+              <tr className="border-b border-border dark:border-dark-surface-3/60">
+                <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground dark:text-slate-300 uppercase">User</th>
+                <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground dark:text-slate-300 uppercase">Service</th>
+                <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground dark:text-slate-300 uppercase">Plan</th>
+                <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground dark:text-slate-300 uppercase">Price</th>
+                <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground dark:text-slate-300 uppercase">Status</th>
+                <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground dark:text-slate-300 uppercase">Start</th>
+                <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground dark:text-slate-300 uppercase">End</th>
+                <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground dark:text-slate-300 uppercase">Auto</th>
+                <th className="text-right py-3 px-4 text-xs font-semibold text-muted-foreground dark:text-slate-300 uppercase">Action</th>
               </tr>
             </thead>
             <tbody>
               {filtered.map(sub => (
-                <tr key={sub.id} className="border-b border-gray-100 dark:border-dark-surface-3/40 hover:bg-gray-50/50 dark:hover:bg-primary-900/10 transition-colors">
+                <tr key={sub.id} className="border-b border-border/50 dark:border-dark-surface-3/40 hover:bg-muted/50/50 dark:hover:bg-primary-900/10 transition-colors">
                   <td className="py-3 px-4">
-                    <div><p className="text-sm font-medium text-gray-900 dark:text-slate-100">{sub.user_name}</p><p className="text-xs text-gray-400 dark:text-slate-400">{sub.user_email}</p></div>
+                    <div><p className="text-sm font-medium text-foreground">{sub.user_name}</p><p className="text-xs text-muted-foreground/80 dark:text-slate-400">{sub.user_email}</p></div>
                   </td>
-                  <td className="py-3 px-4 text-sm text-gray-700 dark:text-slate-300">{sub.service_name}</td>
-                  <td className="py-3 px-4 text-sm text-gray-700 dark:text-slate-300">{sub.plan_name}</td>
-                  <td className="py-3 px-4 text-sm font-medium text-gray-900 dark:text-slate-100">${(sub.price || 0).toFixed(2)}</td>
+                  <td className="py-3 px-4 text-sm text-foreground/90">{sub.service_name}</td>
+                  <td className="py-3 px-4 text-sm text-foreground/90">{sub.plan_name}</td>
+                  <td className="py-3 px-4 text-sm font-medium text-foreground">${(sub.price || 0).toFixed(2)}</td>
                   <td className="py-3 px-4"><Badge variant={statusBadge[sub.status]}>{sub.status}</Badge></td>
-                  <td className="py-3 px-4 text-sm text-gray-500 dark:text-slate-300">{sub.start_date}</td>
-                  <td className="py-3 px-4 text-sm text-gray-500 dark:text-slate-300">{sub.end_date}</td>
+                  <td className="py-3 px-4 text-sm text-muted-foreground dark:text-slate-300">{sub.start_date}</td>
+                  <td className="py-3 px-4 text-sm text-muted-foreground dark:text-slate-300">{sub.end_date}</td>
                   <td className="py-3 px-4">{sub.auto_renew ? <Badge variant="info">On</Badge> : <Badge>Off</Badge>}</td>
                   <td className="py-3 px-4 text-right">
                     <Button size="sm" variant="ghost" onClick={() => { setActionSub(sub); setNewStatus(sub.status); }}>
@@ -106,9 +106,9 @@ export default function AdminSubscriptions() {
       {actionSub && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => setActionSub(null)}>
           <div className="fixed inset-0 bg-gray-900/20 dark:bg-black/60 backdrop-blur-[2px]" />
-          <div className="relative bg-white dark:bg-dark-surface-1 border border-gray-250 dark:border-dark-surface-3 rounded-xl shadow-2xl dark:shadow-black/40 max-w-sm w-full p-6 animate-scaleIn" onClick={e => e.stopPropagation()}>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100 mb-2">Change Status</h3>
-            <p className="text-sm text-gray-500 dark:text-slate-300 mb-4">
+          <div className="relative bg-card border border-gray-250 dark:border-dark-surface-3 rounded-xl shadow-2xl dark:shadow-black/40 max-w-sm w-full p-6 animate-scaleIn" onClick={e => e.stopPropagation()}>
+            <h3 className="text-lg font-semibold text-foreground mb-2">Change Status</h3>
+            <p className="text-sm text-muted-foreground dark:text-slate-300 mb-4">
               {actionSub.user_name} — {actionSub.service_name} ({actionSub.plan_name})
             </p>
             <Select

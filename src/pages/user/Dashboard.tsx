@@ -56,7 +56,7 @@ export default function UserDashboard() {
       <div className="grid lg:grid-cols-3 gap-6">
         {/* Chart */}
         <Card className="lg:col-span-2">
-          <h3 className="text-sm font-semibold text-gray-900 mb-4">Monthly Spending</h3>
+          <h3 className="text-sm font-semibold text-foreground mb-4">Monthly Spending</h3>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={spendData}>
@@ -78,18 +78,18 @@ export default function UserDashboard() {
         {/* Active Subscriptions */}
         <Card>
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-semibold text-gray-900">Active Plans</h3>
-            <Link to="/subscriptions" className="text-xs text-primary-600 font-medium hover:text-primary-700">View all →</Link>
+            <h3 className="text-sm font-semibold text-foreground">Active Plans</h3>
+            <Link to="/subscriptions" className="text-xs text-primary font-medium hover:text-primary/90">View all →</Link>
           </div>
           <div className="space-y-3">
             {activeSubs.length === 0 ? (
-              <p className="text-sm text-gray-400 py-4 text-center">No active subscriptions</p>
+              <p className="text-sm text-muted-foreground/80 py-4 text-center">No active subscriptions</p>
             ) : (
               activeSubs.slice(0, 5).map(sub => (
-                <div key={sub.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div key={sub.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
                   <div>
-                    <p className="text-sm font-medium text-gray-900">{sub.service_name}</p>
-                    <p className="text-xs text-gray-500">{sub.plan_name} · ${sub.price}/mo</p>
+                    <p className="text-sm font-medium text-foreground">{sub.service_name}</p>
+                    <p className="text-xs text-muted-foreground">{sub.plan_name} · ${sub.price}/mo</p>
                   </div>
                   <Badge variant="success">Active</Badge>
                 </div>
@@ -102,29 +102,29 @@ export default function UserDashboard() {
       {/* Recent Invoices */}
       <Card className="mt-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-semibold text-gray-900">Recent Invoices</h3>
-          <Link to="/billing" className="text-xs text-primary-600 font-medium hover:text-primary-700 flex items-center gap-1">
+          <h3 className="text-sm font-semibold text-foreground">Recent Invoices</h3>
+          <Link to="/billing" className="text-xs text-primary font-medium hover:text-primary/90 flex items-center gap-1">
             View all <ArrowRight className="w-3 h-3" />
           </Link>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-gray-100">
-                <th className="text-left py-2 px-3 text-xs font-semibold text-gray-500 uppercase">Invoice</th>
-                <th className="text-left py-2 px-3 text-xs font-semibold text-gray-500 uppercase">Service</th>
-                <th className="text-left py-2 px-3 text-xs font-semibold text-gray-500 uppercase">Amount</th>
-                <th className="text-left py-2 px-3 text-xs font-semibold text-gray-500 uppercase">Date</th>
-                <th className="text-left py-2 px-3 text-xs font-semibold text-gray-500 uppercase">Status</th>
+              <tr className="border-b border-border/50">
+                <th className="text-left py-2 px-3 text-xs font-semibold text-muted-foreground uppercase">Invoice</th>
+                <th className="text-left py-2 px-3 text-xs font-semibold text-muted-foreground uppercase">Service</th>
+                <th className="text-left py-2 px-3 text-xs font-semibold text-muted-foreground uppercase">Amount</th>
+                <th className="text-left py-2 px-3 text-xs font-semibold text-muted-foreground uppercase">Date</th>
+                <th className="text-left py-2 px-3 text-xs font-semibold text-muted-foreground uppercase">Status</th>
               </tr>
             </thead>
             <tbody>
               {invoices.slice(0, 5).map(inv => (
-                <tr key={inv.id} className="border-b border-gray-50 hover:bg-gray-50/50">
-                  <td className="py-2.5 px-3 text-sm text-gray-700 font-mono">{inv.invoice_number.slice(0, 16)}</td>
-                  <td className="py-2.5 px-3 text-sm text-gray-700">{inv.service_name}</td>
-                  <td className="py-2.5 px-3 text-sm font-medium text-gray-900">${inv.total.toFixed(2)}</td>
-                  <td className="py-2.5 px-3 text-sm text-gray-500">{new Date(inv.created_at).toLocaleDateString()}</td>
+                <tr key={inv.id} className="border-b border-gray-50 hover:bg-muted/50/50">
+                  <td className="py-2.5 px-3 text-sm text-muted-foreground font-mono">{inv.invoice_number.slice(0, 16)}</td>
+                  <td className="py-2.5 px-3 text-sm text-muted-foreground">{inv.service_name}</td>
+                  <td className="py-2.5 px-3 text-sm font-medium text-foreground">${inv.total.toFixed(2)}</td>
+                  <td className="py-2.5 px-3 text-sm text-muted-foreground">{new Date(inv.created_at).toLocaleDateString()}</td>
                   <td className="py-2.5 px-3">
                     <Badge variant={inv.status === 'paid' ? 'success' : inv.status === 'pending' ? 'warning' : 'danger'}>
                       {inv.status}

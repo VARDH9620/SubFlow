@@ -82,7 +82,7 @@ export default function AdminPayments() {
       {/* Charts */}
       <div className="grid lg:grid-cols-3 gap-6 mb-6">
         <Card className="lg:col-span-2">
-          <h3 className="text-sm font-semibold text-gray-900 mb-4">Daily Revenue (Last 14 days)</h3>
+          <h3 className="text-sm font-semibold text-foreground mb-4">Daily Revenue (Last 14 days)</h3>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={stats.daily_revenue}>
@@ -102,7 +102,7 @@ export default function AdminPayments() {
         </Card>
 
         <Card>
-          <h3 className="text-sm font-semibold text-gray-900 mb-4">Payment Methods</h3>
+          <h3 className="text-sm font-semibold text-foreground mb-4">Payment Methods</h3>
           {stats.by_method.length > 0 ? (
             <div className="h-48">
               <ResponsiveContainer width="100%" height="100%">
@@ -119,18 +119,18 @@ export default function AdminPayments() {
               </ResponsiveContainer>
             </div>
           ) : (
-            <p className="text-sm text-gray-400 text-center py-8">No payment data yet</p>
+            <p className="text-sm text-muted-foreground/80 text-center py-8">No payment data yet</p>
           )}
           <div className="mt-2 space-y-2">
             {stats.by_method.map((m, i) => (
               <div key={m.method} className="flex items-center justify-between text-xs">
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
-                  <span className="text-gray-600 capitalize flex items-center gap-1">{methodIcons[m.method]} {m.method.replace('_', ' ')}</span>
+                  <span className="text-muted-foreground capitalize flex items-center gap-1">{methodIcons[m.method]} {m.method.replace('_', ' ')}</span>
                 </div>
                 <div className="text-right">
-                  <span className="font-medium text-gray-900">{m.count}</span>
-                  <span className="text-gray-400 ml-1">${m.total.toFixed(0)}</span>
+                  <span className="font-medium text-foreground">{m.count}</span>
+                  <span className="text-muted-foreground/80 ml-1">${m.total.toFixed(0)}</span>
                 </div>
               </div>
             ))}
@@ -138,11 +138,11 @@ export default function AdminPayments() {
 
           {stats.by_brand.length > 0 && (
             <div className="mt-4 pt-3 border-t">
-              <p className="text-xs font-medium text-gray-500 mb-2">Card Brands</p>
+              <p className="text-xs font-medium text-muted-foreground mb-2">Card Brands</p>
               {stats.by_brand.map(b => (
                 <div key={b.brand} className="flex items-center justify-between text-xs mb-1">
-                  <span className="text-gray-600 capitalize">{b.brand}</span>
-                  <span className="text-gray-900">{b.count} · ${b.total.toFixed(0)}</span>
+                  <span className="text-muted-foreground capitalize">{b.brand}</span>
+                  <span className="text-foreground">{b.count} · ${b.total.toFixed(0)}</span>
                 </div>
               ))}
             </div>
@@ -172,53 +172,53 @@ export default function AdminPayments() {
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-gray-200">
-                  <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500 uppercase">Transaction</th>
-                  <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500 uppercase">User</th>
-                  <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500 uppercase">Service</th>
-                  <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500 uppercase cursor-pointer select-none" onClick={() => toggleSort('amount')}>
+                <tr className="border-b border-border">
+                  <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase">Transaction</th>
+                  <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase">User</th>
+                  <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase">Service</th>
+                  <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase cursor-pointer select-none" onClick={() => toggleSort('amount')}>
                     <span className="flex items-center gap-1">Amount <ArrowUpDown className="w-3 h-3" /></span>
                   </th>
-                  <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500 uppercase">Method</th>
-                  <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500 uppercase cursor-pointer select-none" onClick={() => toggleSort('date')}>
+                  <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase">Method</th>
+                  <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase cursor-pointer select-none" onClick={() => toggleSort('date')}>
                     <span className="flex items-center gap-1">Date <ArrowUpDown className="w-3 h-3" /></span>
                   </th>
-                  <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500 uppercase">Status</th>
-                  <th className="text-right py-3 px-4 text-xs font-semibold text-gray-500 uppercase">Actions</th>
+                  <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase">Status</th>
+                  <th className="text-right py-3 px-4 text-xs font-semibold text-muted-foreground uppercase">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {filtered.slice(0, 50).map(p => (
-                  <tr key={p.id} className="border-b border-gray-50 hover:bg-gray-50/50">
+                  <tr key={p.id} className="border-b border-gray-50 hover:bg-muted/50/50">
                     <td className="py-3 px-4">
-                      <p className="text-sm font-mono text-gray-700">{p.transaction_id.slice(0, 22)}</p>
-                      <p className="text-xs text-gray-400 font-mono">{p.invoice_number?.slice(0, 16)}</p>
+                      <p className="text-sm font-mono text-muted-foreground">{p.transaction_id.slice(0, 22)}</p>
+                      <p className="text-xs text-muted-foreground/80 font-mono">{p.invoice_number?.slice(0, 16)}</p>
                     </td>
                     <td className="py-3 px-4">
-                      <p className="text-sm text-gray-900 font-medium">{p.user_name}</p>
-                      <p className="text-xs text-gray-400">{p.user_email}</p>
+                      <p className="text-sm text-foreground font-medium">{p.user_name}</p>
+                      <p className="text-xs text-muted-foreground/80">{p.user_email}</p>
                     </td>
                     <td className="py-3 px-4">
-                      <p className="text-sm text-gray-700">{p.service_name || '—'}</p>
-                      <p className="text-xs text-gray-400">{p.plan_name}</p>
+                      <p className="text-sm text-muted-foreground">{p.service_name || '—'}</p>
+                      <p className="text-xs text-muted-foreground/80">{p.plan_name}</p>
                     </td>
                     <td className="py-3 px-4">
                       <div className="text-sm">
-                        <div className="text-gray-500">${p.amount.toFixed(2)}</div>
-                        <div className="text-xs text-gray-400">+${p.tax.toFixed(2)} tax</div>
-                        <div className="font-semibold text-gray-900">${p.total.toFixed(2)}</div>
+                        <div className="text-muted-foreground">${p.amount.toFixed(2)}</div>
+                        <div className="text-xs text-muted-foreground/80">+${p.tax.toFixed(2)} tax</div>
+                        <div className="font-semibold text-foreground">${p.total.toFixed(2)}</div>
                       </div>
                     </td>
                     <td className="py-3 px-4">
-                      <div className="flex items-center gap-1.5 text-sm text-gray-700">
+                      <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
                         {methodIcons[p.method_type] || <CreditCard className="w-4 h-4" />}
                         <span>{p.method}</span>
                       </div>
-                      {p.card_brand && <p className="text-xs text-gray-400 capitalize">{p.card_brand} •••• {p.card_last4}</p>}
+                      {p.card_brand && <p className="text-xs text-muted-foreground/80 capitalize">{p.card_brand} •••• {p.card_last4}</p>}
                     </td>
-                    <td className="py-3 px-4 text-sm text-gray-500">
+                    <td className="py-3 px-4 text-sm text-muted-foreground">
                       {new Date(p.paid_at).toLocaleDateString()}
-                      <p className="text-xs text-gray-400">{new Date(p.paid_at).toLocaleTimeString()}</p>
+                      <p className="text-xs text-muted-foreground/80">{new Date(p.paid_at).toLocaleTimeString()}</p>
                     </td>
                     <td className="py-3 px-4">
                       <Badge variant={p.status === 'paid' ? 'success' : p.status === 'refunded' ? 'warning' : 'danger'}>
@@ -227,8 +227,8 @@ export default function AdminPayments() {
                     </td>
                     <td className="py-3 px-4 text-right">
                       <div className="flex gap-1 justify-end">
-                        <button onClick={() => setDetailPayment(p)} className="p-1.5 hover:bg-gray-100 rounded-lg" title="View details">
-                          <Eye className="w-4 h-4 text-gray-500" />
+                        <button onClick={() => setDetailPayment(p)} className="p-1.5 hover:bg-muted rounded-lg" title="View details">
+                          <Eye className="w-4 h-4 text-muted-foreground" />
                         </button>
                         {p.status === 'paid' && (
                           <button onClick={() => { setRefundPaymentId(p.id); setRefundReason(''); }} className="p-1.5 hover:bg-red-50 rounded-lg" title="Refund">
@@ -251,39 +251,39 @@ export default function AdminPayments() {
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-xs text-gray-400 uppercase tracking-wider">Transaction ID</p>
-                <p className="text-sm font-mono text-gray-900 mt-0.5">{detailPayment.transaction_id}</p>
+                <p className="text-xs text-muted-foreground/80 uppercase tracking-wider">Transaction ID</p>
+                <p className="text-sm font-mono text-foreground mt-0.5">{detailPayment.transaction_id}</p>
               </div>
               <div>
-                <p className="text-xs text-gray-400 uppercase tracking-wider">Invoice</p>
-                <p className="text-sm font-mono text-gray-900 mt-0.5">{detailPayment.invoice_number}</p>
+                <p className="text-xs text-muted-foreground/80 uppercase tracking-wider">Invoice</p>
+                <p className="text-sm font-mono text-foreground mt-0.5">{detailPayment.invoice_number}</p>
               </div>
               <div>
-                <p className="text-xs text-gray-400 uppercase tracking-wider">User</p>
-                <p className="text-sm text-gray-900 mt-0.5">{detailPayment.user_name} <span className="text-gray-400">({detailPayment.user_email})</span></p>
+                <p className="text-xs text-muted-foreground/80 uppercase tracking-wider">User</p>
+                <p className="text-sm text-foreground mt-0.5">{detailPayment.user_name} <span className="text-muted-foreground/80">({detailPayment.user_email})</span></p>
               </div>
               <div>
-                <p className="text-xs text-gray-400 uppercase tracking-wider">Service / Plan</p>
-                <p className="text-sm text-gray-900 mt-0.5">{detailPayment.service_name} — {detailPayment.plan_name}</p>
+                <p className="text-xs text-muted-foreground/80 uppercase tracking-wider">Service / Plan</p>
+                <p className="text-sm text-foreground mt-0.5">{detailPayment.service_name} — {detailPayment.plan_name}</p>
               </div>
             </div>
 
-            <div className="bg-gray-50 rounded-xl p-4 space-y-2">
-              <div className="flex justify-between text-sm"><span className="text-gray-500">Subtotal</span><span>${detailPayment.amount.toFixed(2)}</span></div>
-              <div className="flex justify-between text-sm"><span className="text-gray-500">Tax (18%)</span><span>${detailPayment.tax.toFixed(2)}</span></div>
-              {detailPayment.discount > 0 && <div className="flex justify-between text-sm"><span className="text-gray-500">Discount</span><span className="text-emerald-600">-${detailPayment.discount.toFixed(2)}</span></div>}
+            <div className="bg-muted/50 rounded-xl p-4 space-y-2">
+              <div className="flex justify-between text-sm"><span className="text-muted-foreground">Subtotal</span><span>${detailPayment.amount.toFixed(2)}</span></div>
+              <div className="flex justify-between text-sm"><span className="text-muted-foreground">Tax (18%)</span><span>${detailPayment.tax.toFixed(2)}</span></div>
+              {detailPayment.discount > 0 && <div className="flex justify-between text-sm"><span className="text-muted-foreground">Discount</span><span className="text-emerald-600">-${detailPayment.discount.toFixed(2)}</span></div>}
               <div className="flex justify-between text-sm font-bold pt-2 border-t"><span>Total</span><span>${detailPayment.total.toFixed(2)}</span></div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-xs text-gray-400 uppercase tracking-wider">Payment Method</p>
-                <p className="text-sm text-gray-900 mt-0.5 flex items-center gap-1.5">
+                <p className="text-xs text-muted-foreground/80 uppercase tracking-wider">Payment Method</p>
+                <p className="text-sm text-foreground mt-0.5 flex items-center gap-1.5">
                   {methodIcons[detailPayment.method_type]} {detailPayment.method}
                 </p>
               </div>
               <div>
-                <p className="text-xs text-gray-400 uppercase tracking-wider">Status</p>
+                <p className="text-xs text-muted-foreground/80 uppercase tracking-wider">Status</p>
                 <div className="mt-0.5">
                   <Badge variant={detailPayment.status === 'paid' ? 'success' : detailPayment.status === 'refunded' ? 'warning' : 'danger'}>
                     {detailPayment.status}
@@ -291,21 +291,21 @@ export default function AdminPayments() {
                 </div>
               </div>
               <div>
-                <p className="text-xs text-gray-400 uppercase tracking-wider">Date</p>
-                <p className="text-sm text-gray-900 mt-0.5">{new Date(detailPayment.paid_at).toLocaleString()}</p>
+                <p className="text-xs text-muted-foreground/80 uppercase tracking-wider">Date</p>
+                <p className="text-sm text-foreground mt-0.5">{new Date(detailPayment.paid_at).toLocaleString()}</p>
               </div>
               {detailPayment.card_brand && (
                 <div>
-                  <p className="text-xs text-gray-400 uppercase tracking-wider">Card</p>
-                  <p className="text-sm text-gray-900 mt-0.5 capitalize">{detailPayment.card_brand} •••• {detailPayment.card_last4} · {detailPayment.card_holder}</p>
+                  <p className="text-xs text-muted-foreground/80 uppercase tracking-wider">Card</p>
+                  <p className="text-sm text-foreground mt-0.5 capitalize">{detailPayment.card_brand} •••• {detailPayment.card_last4} · {detailPayment.card_holder}</p>
                 </div>
               )}
             </div>
 
             {detailPayment.billing_address && (
               <div>
-                <p className="text-xs text-gray-400 uppercase tracking-wider">Billing Address</p>
-                <p className="text-sm text-gray-900 mt-0.5">{detailPayment.billing_address}, {detailPayment.billing_city}, {detailPayment.billing_state} {detailPayment.billing_zip}, {detailPayment.billing_country}</p>
+                <p className="text-xs text-muted-foreground/80 uppercase tracking-wider">Billing Address</p>
+                <p className="text-sm text-foreground mt-0.5">{detailPayment.billing_address}, {detailPayment.billing_city}, {detailPayment.billing_state} {detailPayment.billing_zip}, {detailPayment.billing_country}</p>
               </div>
             )}
 
@@ -317,7 +317,7 @@ export default function AdminPayments() {
               </div>
             )}
 
-            <div className="pt-4 border-t border-gray-100 dark:border-slate-700 flex justify-end">
+            <div className="pt-4 border-t border-border/50 flex justify-end">
               <Button
                 variant="outline"
                 size="sm"
@@ -349,9 +349,9 @@ export default function AdminPayments() {
             const p = payments.find(p => p.id === refundPaymentId);
             if (!p) return null;
             return (
-              <div className="bg-gray-50 rounded-xl p-4 space-y-1">
-                <div className="flex justify-between text-sm"><span className="text-gray-500">Transaction</span><span className="font-mono text-xs">{p.transaction_id.slice(0, 22)}</span></div>
-                <div className="flex justify-between text-sm"><span className="text-gray-500">User</span><span>{p.user_name}</span></div>
+              <div className="bg-muted/50 rounded-xl p-4 space-y-1">
+                <div className="flex justify-between text-sm"><span className="text-muted-foreground">Transaction</span><span className="font-mono text-xs">{p.transaction_id.slice(0, 22)}</span></div>
+                <div className="flex justify-between text-sm"><span className="text-muted-foreground">User</span><span>{p.user_name}</span></div>
                 <div className="flex justify-between text-sm font-bold"><span>Refund Amount</span><span className="text-red-600">${p.total.toFixed(2)}</span></div>
               </div>
             );

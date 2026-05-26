@@ -60,7 +60,7 @@ export default function AdminRevenue() {
       </div>
 
       <Card className="lg:col-span-2 mb-6">
-        <h3 className="text-sm font-semibold text-gray-900 dark:text-slate-100 mb-4">Revenue Overview</h3>
+        <h3 className="text-sm font-semibold text-foreground mb-4">Revenue Overview</h3>
         <div className="h-72">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={revenueByMonth}>
@@ -90,38 +90,38 @@ export default function AdminRevenue() {
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-gray-200 dark:border-slate-700">
-                <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500 dark:text-slate-300 uppercase">Invoice #</th>
-                <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500 dark:text-slate-300 uppercase">User</th>
-                <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500 dark:text-slate-300 uppercase">Service</th>
-                <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500 dark:text-slate-300 uppercase">Plan</th>
-                <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500 dark:text-slate-300 uppercase">Amount</th>
-                <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500 dark:text-slate-300 uppercase">Tax</th>
-                <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500 dark:text-slate-300 uppercase">Total</th>
-                <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500 dark:text-slate-300 uppercase">Due Date</th>
-                <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500 dark:text-slate-300 uppercase">Status</th>
-                <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500 dark:text-slate-300 uppercase"></th>
+              <tr className="border-b border-border">
+                <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground dark:text-slate-300 uppercase">Invoice #</th>
+                <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground dark:text-slate-300 uppercase">User</th>
+                <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground dark:text-slate-300 uppercase">Service</th>
+                <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground dark:text-slate-300 uppercase">Plan</th>
+                <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground dark:text-slate-300 uppercase">Amount</th>
+                <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground dark:text-slate-300 uppercase">Tax</th>
+                <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground dark:text-slate-300 uppercase">Total</th>
+                <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground dark:text-slate-300 uppercase">Due Date</th>
+                <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground dark:text-slate-300 uppercase">Status</th>
+                <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground dark:text-slate-300 uppercase"></th>
               </tr>
             </thead>
             <tbody>
               {filtered.slice(0, 50).map(inv => (
-                <tr key={inv.id} className="border-b border-gray-50 dark:border-slate-700/50 hover:bg-gray-50/50 dark:hover:bg-slate-700/30">
-                  <td className="py-3 px-4 text-sm font-mono text-gray-700 dark:text-slate-300">{inv.invoice_number.slice(0, 18)}</td>
-                  <td className="py-3 px-4 text-sm text-gray-700 dark:text-slate-300">{inv.user_email}</td>
-                  <td className="py-3 px-4 text-sm text-gray-700 dark:text-slate-300">{inv.service_name}</td>
-                  <td className="py-3 px-4 text-sm text-gray-500 dark:text-slate-300">{inv.plan_name}</td>
-                  <td className="py-3 px-4 text-sm text-gray-700 dark:text-slate-300">${inv.amount.toFixed(2)}</td>
-                  <td className="py-3 px-4 text-sm text-gray-500 dark:text-slate-300">${inv.tax.toFixed(2)}</td>
-                  <td className="py-3 px-4 text-sm font-medium text-gray-900 dark:text-slate-100">${inv.total.toFixed(2)}</td>
-                  <td className="py-3 px-4 text-sm text-gray-500 dark:text-slate-300">{inv.due_date}</td>
+                <tr key={inv.id} className="border-b border-gray-50 dark:border-slate-700/50 hover:bg-muted/50/50 dark:hover:bg-slate-700/30">
+                  <td className="py-3 px-4 text-sm font-mono text-foreground/90">{inv.invoice_number.slice(0, 18)}</td>
+                  <td className="py-3 px-4 text-sm text-foreground/90">{inv.user_email}</td>
+                  <td className="py-3 px-4 text-sm text-foreground/90">{inv.service_name}</td>
+                  <td className="py-3 px-4 text-sm text-muted-foreground dark:text-slate-300">{inv.plan_name}</td>
+                  <td className="py-3 px-4 text-sm text-foreground/90">${inv.amount.toFixed(2)}</td>
+                  <td className="py-3 px-4 text-sm text-muted-foreground dark:text-slate-300">${inv.tax.toFixed(2)}</td>
+                  <td className="py-3 px-4 text-sm font-medium text-foreground">${inv.total.toFixed(2)}</td>
+                  <td className="py-3 px-4 text-sm text-muted-foreground dark:text-slate-300">{inv.due_date}</td>
                   <td className="py-3 px-4">
                     <Badge variant={inv.status === 'paid' ? 'success' : inv.status === 'pending' ? 'warning' : inv.status === 'refunded' ? 'purple' : 'danger'}>
                       {inv.status}
                     </Badge>
                   </td>
                   <td className="py-3 px-4">
-                    <button onClick={() => handleDownload(inv)} className="p-1.5 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg" title="Download PDF">
-                      <Download className="w-4 h-4 text-gray-500 dark:text-slate-300" />
+                    <button onClick={() => handleDownload(inv)} className="p-1.5 hover:bg-muted dark:hover:bg-slate-700 rounded-lg" title="Download PDF">
+                      <Download className="w-4 h-4 text-muted-foreground dark:text-slate-300" />
                     </button>
                   </td>
                 </tr>

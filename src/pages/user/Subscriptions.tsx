@@ -66,7 +66,7 @@ export default function Subscriptions() {
       <div className="flex gap-2 mb-6 flex-wrap">
         {(['all', 'active', 'paused', 'cancelled'] as const).map(f => (
           <button key={f} onClick={() => setFilter(f)}
-            className={`px-4 py-2 text-sm font-medium rounded-lg cursor-pointer transition-colors ${filter === f ? 'bg-primary-50 dark:bg-primary-500/10 text-primary-700 dark:text-primary-400' : 'text-gray-500 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-dark-surface-3/60'}`}>
+            className={`px-4 py-2 text-sm font-medium rounded-lg cursor-pointer transition-colors ${filter === f ? 'bg-primary-50 dark:bg-primary-500/10 text-primary/90 dark:text-primary-400' : 'text-muted-foreground dark:text-slate-300 hover:bg-muted dark:hover:bg-dark-surface-3/60'}`}>
             {f.charAt(0).toUpperCase() + f.slice(1)}
             <span className="ml-1.5 text-xs opacity-60">{counts[f]}</span>
           </button>
@@ -88,13 +88,13 @@ export default function Subscriptions() {
               <Card key={sub.id} className="hover:shadow-md transition-shadow">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="flex items-start gap-4">
-                    <div className="p-3 bg-primary-50 dark:bg-primary-500/10 text-primary-600 dark:text-primary-400 rounded-xl">
+                    <div className="p-3 bg-primary-50 dark:bg-primary-500/10 text-primary rounded-xl">
                       <CreditCard className="w-5 h-5" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-gray-900 dark:text-slate-100">{sub.service_name}</h3>
-                      <p className="text-sm text-gray-500 dark:text-slate-300">{sub.plan_name} · ${sub.price}/mo</p>
-                      <div className="flex gap-4 mt-2 text-xs text-gray-400 dark:text-slate-400">
+                      <h3 className="font-semibold text-foreground">{sub.service_name}</h3>
+                      <p className="text-sm text-muted-foreground dark:text-slate-300">{sub.plan_name} · ${sub.price}/mo</p>
+                      <div className="flex gap-4 mt-2 text-xs text-muted-foreground/80 dark:text-slate-400">
                         <span>Started: {sub.start_date}</span>
                         <span>Ends: {sub.end_date}</span>
                         {sub.trial_end && <span>Trial until: {sub.trial_end}</span>}
@@ -113,8 +113,8 @@ export default function Subscriptions() {
                     <div className="flex gap-1">
                       {sub.status === 'active' && (
                         <>
-                          <button onClick={() => setConfirmAction({ id: sub.id, action: 'pause' })} className="p-2 hover:bg-gray-100 dark:hover:bg-dark-surface-3/60 rounded-lg cursor-pointer" title="Pause">
-                            <Pause className="w-4 h-4 text-gray-500 dark:text-slate-300" />
+                          <button onClick={() => setConfirmAction({ id: sub.id, action: 'pause' })} className="p-2 hover:bg-muted dark:hover:bg-dark-surface-3/60 rounded-lg cursor-pointer" title="Pause">
+                            <Pause className="w-4 h-4 text-muted-foreground dark:text-slate-300" />
                           </button>
                           <button onClick={() => setConfirmAction({ id: sub.id, action: 'cancel' })} className="p-2 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg cursor-pointer" title="Cancel">
                             <XCircle className="w-4 h-4 text-red-500" />
@@ -123,7 +123,7 @@ export default function Subscriptions() {
                       )}
                       {sub.status === 'paused' && (
                         <>
-                          <button onClick={() => setConfirmAction({ id: sub.id, action: 'resume' })} className="p-2 hover:bg-gray-100 dark:hover:bg-dark-surface-3/60 rounded-lg cursor-pointer" title="Resume">
+                          <button onClick={() => setConfirmAction({ id: sub.id, action: 'resume' })} className="p-2 hover:bg-muted dark:hover:bg-dark-surface-3/60 rounded-lg cursor-pointer" title="Resume">
                             <Play className="w-4 h-4 text-emerald-500" />
                           </button>
                           <button onClick={() => setConfirmAction({ id: sub.id, action: 'cancel' })} className="p-2 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg cursor-pointer" title="Cancel">

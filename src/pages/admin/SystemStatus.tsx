@@ -27,28 +27,28 @@ export default function SystemStatus() {
       {/* Overall banner */}
       <Card className={`border-2 ${status.overall === 'operational' ? 'border-emerald-200 dark:border-emerald-800 bg-emerald-50/50 dark:bg-emerald-900/10' : status.overall === 'degraded' ? 'border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-900/10' : 'border-red-200 dark:border-red-800 bg-red-50/50 dark:bg-red-900/10'}`}>
         <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl flex items-center justify-center bg-white dark:bg-slate-800 shadow-sm">
+          <div className="w-14 h-14 rounded-2xl flex items-center justify-center bg-card shadow-sm">
             {overall.icon}
           </div>
           <div className="flex-1">
             <div className="flex items-center gap-3">
-              <h2 className="text-xl font-bold text-gray-900 dark:text-slate-100">All Systems {overall.label}</h2>
+              <h2 className="text-xl font-bold text-foreground">All Systems {overall.label}</h2>
               <Badge variant={overall.badge}>{status.overall}</Badge>
             </div>
-            <p className="text-sm text-gray-600 dark:text-slate-300 mt-1">
+            <p className="text-sm text-muted-foreground dark:text-slate-300 mt-1">
               {status.uptime30d}% uptime over the last 30 days · Last checked: just now
             </p>
           </div>
           <div className="hidden sm:block text-right">
-            <p className="text-3xl font-bold text-gray-900 dark:text-slate-100">{status.uptime30d}%</p>
-            <p className="text-xs text-gray-500 dark:text-slate-300">30-day uptime</p>
+            <p className="text-3xl font-bold text-foreground">{status.uptime30d}%</p>
+            <p className="text-xs text-muted-foreground dark:text-slate-300">30-day uptime</p>
           </div>
         </div>
       </Card>
 
       {/* Service components */}
       <div className="mt-6">
-        <h3 className="text-sm font-semibold text-gray-900 dark:text-slate-100 mb-4 flex items-center gap-2">
+        <h3 className="text-sm font-semibold text-foreground mb-4 flex items-center gap-2">
           <Activity className="w-4 h-4 text-primary-500" /> Service Components
         </h3>
         <Card padding={false}>
@@ -56,12 +56,12 @@ export default function SystemStatus() {
             {status.services.map((svc, i) => {
               const cfg = statusConfig[svc.status];
               return (
-                <div key={i} className="flex items-center justify-between px-5 py-4 hover:bg-gray-50/50 dark:hover:bg-slate-700/30 transition-colors">
+                <div key={i} className="flex items-center justify-between px-5 py-4 hover:bg-muted/50/50 dark:hover:bg-slate-700/30 transition-colors">
                   <div className="flex items-center gap-3">
                     <div className={`w-2.5 h-2.5 rounded-full ${cfg.color}`} />
-                    <span className="text-sm font-medium text-gray-900 dark:text-slate-200">{svc.name}</span>
+                    <span className="text-sm font-medium text-foreground">{svc.name}</span>
                   </div>
-                  <div className="flex items-center gap-6 text-xs text-gray-500 dark:text-slate-300">
+                  <div className="flex items-center gap-6 text-xs text-muted-foreground dark:text-slate-300">
                     <span className="hidden sm:inline"><Clock className="w-3 h-3 inline mr-1" />{svc.latency}ms</span>
                     <span className="hidden sm:inline">{svc.uptime}% uptime</span>
                     <Badge variant={cfg.badge}>{cfg.label}</Badge>
@@ -75,7 +75,7 @@ export default function SystemStatus() {
 
       {/* Uptime bar (simulated 90-day) */}
       <div className="mt-6">
-        <h3 className="text-sm font-semibold text-gray-900 dark:text-slate-100 mb-4 flex items-center gap-2">
+        <h3 className="text-sm font-semibold text-foreground mb-4 flex items-center gap-2">
           <Shield className="w-4 h-4 text-primary-500" /> 90-Day Uptime
         </h3>
         <Card>
@@ -93,7 +93,7 @@ export default function SystemStatus() {
               );
             })}
           </div>
-          <div className="flex items-center gap-4 mt-3 text-xs text-gray-500 dark:text-slate-300">
+          <div className="flex items-center gap-4 mt-3 text-xs text-muted-foreground dark:text-slate-300">
             <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm bg-emerald-400" /> Operational</span>
             <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm bg-amber-400" /> Degraded</span>
             <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm bg-red-400" /> Outage</span>
@@ -104,18 +104,18 @@ export default function SystemStatus() {
 
       {/* Incident history */}
       <div className="mt-6">
-        <h3 className="text-sm font-semibold text-gray-900 dark:text-slate-100 mb-4">Incident History</h3>
+        <h3 className="text-sm font-semibold text-foreground mb-4">Incident History</h3>
         <div className="space-y-3">
           {status.incidents.map((inc, i) => (
             <Card key={i} padding={false}>
-              <button onClick={() => setExpandedIncident(expandedIncident === i ? null : i)} className="w-full text-left p-5 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-slate-700/30 transition-colors">
+              <button onClick={() => setExpandedIncident(expandedIncident === i ? null : i)} className="w-full text-left p-5 flex items-center justify-between hover:bg-muted/50 dark:hover:bg-slate-700/30 transition-colors">
                 <div className="flex items-center gap-3">
                   {inc.status === 'resolved'
                     ? <CheckCircle className="w-5 h-5 text-emerald-500 flex-shrink-0" />
                     : <AlertTriangle className="w-5 h-5 text-amber-500 flex-shrink-0" />}
                   <div>
-                    <h4 className="text-sm font-semibold text-gray-900 dark:text-slate-100">{inc.title}</h4>
-                    <p className="text-xs text-gray-500 dark:text-slate-300 mt-0.5">
+                    <h4 className="text-sm font-semibold text-foreground">{inc.title}</h4>
+                    <p className="text-xs text-muted-foreground dark:text-slate-300 mt-0.5">
                       {new Date(inc.started).toLocaleString()} — {inc.resolved ? `Resolved ${new Date(inc.resolved).toLocaleString()}` : 'Ongoing'}
                     </p>
                   </div>
@@ -123,7 +123,7 @@ export default function SystemStatus() {
                 <Badge variant={inc.status === 'resolved' ? 'success' : 'warning'}>{inc.status}</Badge>
               </button>
               {expandedIncident === i && (
-                <div className="px-5 pb-5 border-t border-gray-100 dark:border-slate-700 pt-4 space-y-3">
+                <div className="px-5 pb-5 border-t border-border/50 pt-4 space-y-3">
                   {inc.updates.map((upd, j) => (
                     <div key={j} className="flex gap-3">
                       <div className="flex flex-col items-center">
@@ -131,8 +131,8 @@ export default function SystemStatus() {
                         {j < inc.updates.length - 1 && <div className="w-0.5 flex-1 bg-gray-200 dark:bg-slate-600" />}
                       </div>
                       <div className="pb-3">
-                        <p className="text-xs text-gray-400 dark:text-slate-400">{new Date(upd.time).toLocaleString()}</p>
-                        <p className="text-sm text-gray-700 dark:text-slate-300 mt-0.5">{upd.message}</p>
+                        <p className="text-xs text-muted-foreground/80 dark:text-slate-400">{new Date(upd.time).toLocaleString()}</p>
+                        <p className="text-sm text-foreground/90 mt-0.5">{upd.message}</p>
                       </div>
                     </div>
                   ))}

@@ -82,7 +82,7 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-slate-900">
+    <div className="min-h-screen bg-card">
       {step === 'email' && (
         <div className="min-h-screen flex">
           {/* Left branding */}
@@ -116,8 +116,8 @@ export default function ForgotPassword() {
             <div className="w-full max-w-sm">
               <div className="flex items-center justify-between mb-8">
                 <Link to="/login" className="lg:hidden flex items-center gap-2">
-                  <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center"><Zap className="w-4 h-4 text-white" /></div>
-                  <span className="text-lg font-bold text-gray-900 dark:text-slate-100">SubFlow</span>
+                  <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center"><Zap className="w-4 h-4 text-white" /></div>
+                  <span className="text-lg font-bold text-foreground">SubFlow</span>
                 </Link>
                 <ThemeToggle compact />
               </div>
@@ -128,8 +128,8 @@ export default function ForgotPassword() {
                 </div>
               </div>
 
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100 text-center">Forgot Password</h1>
-              <p className="mt-2 text-sm text-gray-500 dark:text-slate-300 text-center">
+              <h1 className="text-2xl font-bold text-foreground text-center">Forgot Password</h1>
+              <p className="mt-2 text-sm text-muted-foreground dark:text-slate-300 text-center">
                 Enter your email and we'll send you a verification code
               </p>
 
@@ -151,7 +151,7 @@ export default function ForgotPassword() {
                 </Button>
               </form>
 
-              <Link to="/login" className="flex items-center justify-center gap-2 mt-6 text-sm text-gray-500 dark:text-slate-300 hover:text-gray-700 dark:hover:text-slate-200">
+              <Link to="/login" className="flex items-center justify-center gap-2 mt-6 text-sm text-muted-foreground dark:text-slate-300 hover:text-muted-foreground dark:hover:text-slate-200">
                 <ArrowLeft className="w-4 h-4" /> Back to Sign In
               </Link>
             </div>
@@ -167,7 +167,7 @@ export default function ForgotPassword() {
           onVerify={handleVerifyOTP}
           onResend={handleResendOTP}
           onBack={() => setStep('email')}
-          icon={<Mail className="w-10 h-10 text-primary-600 dark:text-primary-400" />}
+          icon={<Mail className="w-10 h-10 text-primary" />}
         />
       )}
 
@@ -181,12 +181,12 @@ export default function ForgotPassword() {
             </div>
 
             <div className="text-center mb-8">
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Set New Password</h1>
-              <p className="text-sm text-gray-500 dark:text-slate-300 mt-2">
+              <h1 className="text-2xl font-bold text-foreground">Set New Password</h1>
+              <p className="text-sm text-muted-foreground dark:text-slate-300 mt-2">
                 Create a strong password for your account
               </p>
-              <p className="text-xs text-gray-400 dark:text-slate-400 mt-1">
-                For <strong className="text-gray-600 dark:text-slate-300">{email}</strong>
+              <p className="text-xs text-muted-foreground/80 dark:text-slate-400 mt-1">
+                For <strong className="text-muted-foreground dark:text-slate-300">{email}</strong>
               </p>
             </div>
 
@@ -237,11 +237,11 @@ export default function ForgotPassword() {
               <svg className="w-10 h-10 text-emerald-600 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
             </div>
 
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100 mb-2">Password Reset Successful!</h1>
-            <p className="text-sm text-gray-500 dark:text-slate-300 mb-2">
+            <h1 className="text-2xl font-bold text-foreground mb-2">Password Reset Successful!</h1>
+            <p className="text-sm text-muted-foreground dark:text-slate-300 mb-2">
               Your password has been updated. You can now sign in with your new password.
             </p>
-            <p className="text-xs text-gray-400 dark:text-slate-400 mb-8">
+            <p className="text-xs text-muted-foreground/80 dark:text-slate-400 mb-8">
               For security, all other active sessions have been logged out.
             </p>
 

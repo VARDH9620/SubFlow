@@ -72,7 +72,7 @@ export default function AdminDashboard() {
         {/* Revenue Chart */}
         <Card>
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-semibold text-gray-900">Revenue Overview</h3>
+            <h3 className="text-sm font-semibold text-foreground">Revenue Overview</h3>
             <Badge variant="info">Monthly</Badge>
           </div>
           <div className="h-64">
@@ -96,7 +96,7 @@ export default function AdminDashboard() {
         {/* User Growth Chart */}
         <Card>
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-semibold text-gray-900">User Growth</h3>
+            <h3 className="text-sm font-semibold text-foreground">User Growth</h3>
             <Badge variant="success">Cumulative</Badge>
           </div>
           <div className="h-64">
@@ -122,7 +122,7 @@ export default function AdminDashboard() {
         {/* Subscription trend */}
         <Card className="lg:col-span-2">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-semibold text-gray-900">New Subscriptions</h3>
+            <h3 className="text-sm font-semibold text-foreground">New Subscriptions</h3>
             <Badge>Monthly</Badge>
           </div>
           <div className="h-48">
@@ -144,7 +144,7 @@ export default function AdminDashboard() {
 
         {/* Category Distribution */}
         <Card>
-          <h3 className="text-sm font-semibold text-gray-900 mb-4">By Category</h3>
+          <h3 className="text-sm font-semibold text-foreground mb-4">By Category</h3>
           <div className="h-48">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -160,9 +160,9 @@ export default function AdminDashboard() {
               <div key={cat.name} className="flex items-center justify-between text-xs">
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
-                  <span className="text-gray-600">{cat.name}</span>
+                  <span className="text-muted-foreground">{cat.name}</span>
                 </div>
-                <span className="font-medium text-gray-900">{cat.value}</span>
+                <span className="font-medium text-foreground">{cat.value}</span>
               </div>
             ))}
           </div>

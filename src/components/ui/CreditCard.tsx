@@ -111,8 +111,8 @@ export function CreditCardVisual({ cardNumber, cardHolder, expiryMonth, expiryYe
           <div className="mx-6 mt-4">
             <div className="bg-white/90 rounded px-4 py-2 text-right">
               <div className="flex items-center justify-end gap-2">
-                <span className="text-[10px] text-gray-500 uppercase">CVV</span>
-                <span className="font-mono text-lg text-gray-900 tracking-[0.3em]">
+                <span className="text-[10px] text-muted-foreground uppercase">CVV</span>
+                <span className="font-mono text-lg text-foreground tracking-[0.3em]">
                   {cvv || '•••'}
                 </span>
               </div>

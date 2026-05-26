@@ -92,19 +92,19 @@ export function CommandPalette() {
   return (
     <div className="fixed inset-0 z-[60] flex items-start justify-center pt-[15vh]">
       <div className="fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm" onClick={() => setOpen(false)} />
-      <div className="relative w-full max-w-xl mx-4 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-slate-700 overflow-hidden animate-scaleIn">
+      <div className="relative w-full max-w-xl mx-4 bg-card rounded-2xl shadow-2xl border border-border overflow-hidden animate-scaleIn">
         {/* Search input */}
-        <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-100 dark:border-slate-700">
-          <Search className="w-5 h-5 text-gray-400 dark:text-slate-400 flex-shrink-0" />
+        <div className="flex items-center gap-3 px-4 py-3 border-b border-border/50">
+          <Search className="w-5 h-5 text-muted-foreground/80 dark:text-slate-400 flex-shrink-0" />
           <input
             ref={inputRef}
             value={query}
             onChange={e => { setQuery(e.target.value); setSelected(0); }}
             onKeyDown={handleKeyDown}
             placeholder="Type a command or search..."
-            className="flex-1 bg-transparent text-gray-900 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 text-sm focus:outline-none"
+            className="flex-1 bg-transparent text-foreground placeholder-gray-400 dark:placeholder-slate-500 text-sm focus:outline-none"
           />
-          <kbd className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 bg-gray-100 dark:bg-slate-700 text-gray-400 dark:text-slate-400 text-[10px] font-mono rounded">
+          <kbd className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 bg-muted dark:bg-slate-700 text-muted-foreground/80 dark:text-slate-400 text-[10px] font-mono rounded">
             ESC
           </kbd>
         </div>
@@ -116,7 +116,7 @@ export function CommandPalette() {
             if (items.length === 0) return null;
             return (
               <div key={section}>
-                <p className="px-4 py-1.5 text-[10px] font-semibold text-gray-400 dark:text-slate-400 uppercase tracking-widest">{section}</p>
+                <p className="px-4 py-1.5 text-[10px] font-semibold text-muted-foreground/80 dark:text-slate-400 uppercase tracking-widest">{section}</p>
                 {items.map(item => {
                   const globalIdx = filtered.indexOf(item);
                   return (
@@ -126,11 +126,11 @@ export function CommandPalette() {
                       onMouseEnter={() => setSelected(globalIdx)}
                       className={`w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors ${
                         globalIdx === selected
-                          ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300'
-                          : 'text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700/50'
+                          ? 'bg-primary-50 dark:bg-primary-900/30 text-primary/90 dark:text-primary-300'
+                          : 'text-foreground/90 hover:bg-muted/50 dark:hover:bg-slate-700/50'
                       }`}
                     >
-                      <span className={`p-1.5 rounded-lg ${globalIdx === selected ? 'bg-primary-100 dark:bg-primary-800/50' : 'bg-gray-100 dark:bg-slate-700'}`}>
+                      <span className={`p-1.5 rounded-lg ${globalIdx === selected ? 'bg-primary-100 dark:bg-primary-800/50' : 'bg-muted dark:bg-slate-700'}`}>
                         {item.icon}
                       </span>
                       <span className="flex-1 text-sm font-medium">{item.label}</span>
@@ -142,12 +142,12 @@ export function CommandPalette() {
             );
           })}
           {filtered.length === 0 && (
-            <div className="px-4 py-8 text-center text-sm text-gray-400 dark:text-slate-400">No results found for "{query}"</div>
+            <div className="px-4 py-8 text-center text-sm text-muted-foreground/80 dark:text-slate-400">No results found for "{query}"</div>
           )}
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between px-4 py-2.5 border-t border-gray-100 dark:border-slate-700 text-[10px] text-gray-400 dark:text-slate-400">
+        <div className="flex items-center justify-between px-4 py-2.5 border-t border-border/50 text-[10px] text-muted-foreground/80 dark:text-slate-400">
           <div className="flex items-center gap-3">
             <span className="flex items-center gap-1"><Keyboard className="w-3 h-3" /> ↑↓ Navigate</span>
             <span className="flex items-center gap-1">↵ Select</span>

@@ -75,22 +75,22 @@ export default function AdminServices() {
             <Card key={svc.id} className="relative">
               <div className="flex items-start justify-between">
                 <div className="flex items-start gap-3">
-                  <div className="p-2.5 bg-primary-50 dark:bg-primary-500/10 text-primary-600 dark:text-primary-400 rounded-xl">{iconMap[svc.icon] || <Cloud className="w-5 h-5" />}</div>
+                  <div className="p-2.5 bg-primary-50 dark:bg-primary-500/10 text-primary rounded-xl">{iconMap[svc.icon] || <Cloud className="w-5 h-5" />}</div>
                   <div>
-                    <h3 className="font-semibold text-gray-900 dark:text-slate-100">{svc.name}</h3>
+                    <h3 className="font-semibold text-foreground">{svc.name}</h3>
                     <Badge className="mt-1">{svc.category}</Badge>
                   </div>
                 </div>
                 <Badge variant={svc.status === 'active' ? 'success' : 'danger'}>{svc.status}</Badge>
               </div>
-              <p className="text-sm text-gray-500 dark:text-slate-300 mt-3 line-clamp-2">{svc.description}</p>
-              <div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-100 dark:border-dark-surface-3/60">
-                <button onClick={() => toggleStatus(svc)} className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-slate-300 hover:text-gray-700 dark:hover:text-slate-200 cursor-pointer">
-                  {svc.status === 'active' ? <ToggleRight className="w-5 h-5 text-emerald-500" /> : <ToggleLeft className="w-5 h-5 text-gray-400 dark:text-slate-400" />}
+              <p className="text-sm text-muted-foreground dark:text-slate-300 mt-3 line-clamp-2">{svc.description}</p>
+              <div className="flex items-center justify-between mt-4 pt-3 border-t border-border/50 dark:border-dark-surface-3/60">
+                <button onClick={() => toggleStatus(svc)} className="flex items-center gap-1.5 text-xs text-muted-foreground dark:text-slate-300 hover:text-muted-foreground dark:hover:text-slate-200 cursor-pointer">
+                  {svc.status === 'active' ? <ToggleRight className="w-5 h-5 text-emerald-500" /> : <ToggleLeft className="w-5 h-5 text-muted-foreground/80 dark:text-slate-400" />}
                   {svc.status === 'active' ? 'Active' : 'Inactive'}
                 </button>
                 <div className="flex gap-1">
-                  <button onClick={() => openEdit(svc)} className="p-1.5 hover:bg-gray-100 dark:hover:bg-dark-surface-3/60 rounded-lg cursor-pointer"><Edit className="w-4 h-4 text-gray-500 dark:text-slate-300" /></button>
+                  <button onClick={() => openEdit(svc)} className="p-1.5 hover:bg-muted dark:hover:bg-dark-surface-3/60 rounded-lg cursor-pointer"><Edit className="w-4 h-4 text-muted-foreground dark:text-slate-300" /></button>
                   <button onClick={() => setDeleteId(svc.id)} className="p-1.5 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg cursor-pointer"><Trash2 className="w-4 h-4 text-red-500" /></button>
                 </div>
               </div>

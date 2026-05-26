@@ -44,8 +44,8 @@ function ProtectedRoute({ children, role }: { children: ReactNode; role?: 'user'
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-slate-950">
-        <div className="w-10 h-10 border-[3px] border-gray-200 dark:border-slate-800 border-t-primary-500 rounded-full animate-spin" />
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="w-10 h-10 border-[3px] border-border border-t-primary-500 rounded-full animate-spin" />
       </div>
     );
   }

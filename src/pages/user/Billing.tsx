@@ -60,16 +60,16 @@ export default function Billing() {
       {/* Summary cards */}
       <div className="grid sm:grid-cols-3 gap-4 mb-6">
         <Card>
-          <p className="text-sm text-gray-500 dark:text-slate-300">Total Paid</p>
+          <p className="text-sm text-muted-foreground dark:text-slate-300">Total Paid</p>
           <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-1">${totalPaid.toFixed(2)}</p>
         </Card>
         <Card>
-          <p className="text-sm text-gray-500 dark:text-slate-300">Pending</p>
+          <p className="text-sm text-muted-foreground dark:text-slate-300">Pending</p>
           <p className="text-2xl font-bold text-amber-600 dark:text-amber-400 mt-1">${totalPending.toFixed(2)}</p>
         </Card>
         <Card>
-          <p className="text-sm text-gray-500 dark:text-slate-300">Total Invoices</p>
-          <p className="text-2xl font-bold text-gray-900 dark:text-slate-100 mt-1">{invoices.length}</p>
+          <p className="text-sm text-muted-foreground dark:text-slate-300">Total Invoices</p>
+          <p className="text-2xl font-bold text-foreground mt-1">{invoices.length}</p>
         </Card>
       </div>
 
@@ -89,28 +89,28 @@ export default function Billing() {
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-gray-200 dark:border-slate-700">
-                  <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500 dark:text-slate-300 uppercase">Invoice #</th>
-                  <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500 dark:text-slate-300 uppercase">Service</th>
-                  <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500 dark:text-slate-300 uppercase">Plan</th>
-                  <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500 dark:text-slate-300 uppercase">Amount</th>
-                  <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500 dark:text-slate-300 uppercase">Tax</th>
-                  <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500 dark:text-slate-300 uppercase">Total</th>
-                  <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500 dark:text-slate-300 uppercase">Date</th>
-                  <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500 dark:text-slate-300 uppercase">Status</th>
-                  <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500 dark:text-slate-300 uppercase">Action</th>
+                <tr className="border-b border-border">
+                  <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground dark:text-slate-300 uppercase">Invoice #</th>
+                  <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground dark:text-slate-300 uppercase">Service</th>
+                  <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground dark:text-slate-300 uppercase">Plan</th>
+                  <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground dark:text-slate-300 uppercase">Amount</th>
+                  <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground dark:text-slate-300 uppercase">Tax</th>
+                  <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground dark:text-slate-300 uppercase">Total</th>
+                  <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground dark:text-slate-300 uppercase">Date</th>
+                  <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground dark:text-slate-300 uppercase">Status</th>
+                  <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground dark:text-slate-300 uppercase">Action</th>
                 </tr>
               </thead>
               <tbody>
                 {filtered.map(inv => (
-                  <tr key={inv.id} className="border-b border-gray-50 dark:border-slate-700/50 hover:bg-gray-50/50 dark:hover:bg-slate-700/30">
-                    <td className="py-3 px-4 text-sm font-mono text-gray-700 dark:text-slate-300">{inv.invoice_number.slice(0, 18)}</td>
-                    <td className="py-3 px-4 text-sm text-gray-700 dark:text-slate-300">{inv.service_name}</td>
-                    <td className="py-3 px-4 text-sm text-gray-500 dark:text-slate-300">{inv.plan_name}</td>
-                    <td className="py-3 px-4 text-sm text-gray-700 dark:text-slate-300">${inv.amount.toFixed(2)}</td>
-                    <td className="py-3 px-4 text-sm text-gray-500 dark:text-slate-300">${inv.tax.toFixed(2)}</td>
-                    <td className="py-3 px-4 text-sm font-medium text-gray-900 dark:text-slate-100">${inv.total.toFixed(2)}</td>
-                    <td className="py-3 px-4 text-sm text-gray-500 dark:text-slate-300">{new Date(inv.created_at).toLocaleDateString()}</td>
+                  <tr key={inv.id} className="border-b border-gray-50 dark:border-slate-700/50 hover:bg-muted/50/50 dark:hover:bg-slate-700/30">
+                    <td className="py-3 px-4 text-sm font-mono text-foreground/90">{inv.invoice_number.slice(0, 18)}</td>
+                    <td className="py-3 px-4 text-sm text-foreground/90">{inv.service_name}</td>
+                    <td className="py-3 px-4 text-sm text-muted-foreground dark:text-slate-300">{inv.plan_name}</td>
+                    <td className="py-3 px-4 text-sm text-foreground/90">${inv.amount.toFixed(2)}</td>
+                    <td className="py-3 px-4 text-sm text-muted-foreground dark:text-slate-300">${inv.tax.toFixed(2)}</td>
+                    <td className="py-3 px-4 text-sm font-medium text-foreground">${inv.total.toFixed(2)}</td>
+                    <td className="py-3 px-4 text-sm text-muted-foreground dark:text-slate-300">{new Date(inv.created_at).toLocaleDateString()}</td>
                     <td className="py-3 px-4">
                       <Badge variant={inv.status === 'paid' ? 'success' : inv.status === 'pending' ? 'warning' : inv.status === 'failed' ? 'danger' : inv.status === 'refunded' ? 'purple' : 'default'}>
                         {inv.status}
@@ -122,12 +122,12 @@ export default function Billing() {
                       ) : inv.status === 'refunded' ? (
                         <div className="flex gap-1">
                           <Badge variant="purple">Refunded</Badge>
-                          <Button size="sm" variant="ghost" onClick={() => handleDownloadPDF(inv)} className="gap-1 text-gray-500 dark:text-slate-300">
+                          <Button size="sm" variant="ghost" onClick={() => handleDownloadPDF(inv)} className="gap-1 text-muted-foreground dark:text-slate-300">
                             <Download className="w-3.5 h-3.5" />
                           </Button>
                         </div>
                       ) : (
-                        <Button size="sm" variant="ghost" onClick={() => handleDownloadPDF(inv)} className="gap-1 text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20">
+                        <Button size="sm" variant="ghost" onClick={() => handleDownloadPDF(inv)} className="gap-1 text-primary hover:bg-primary-50 dark:hover:bg-primary-900/20">
                           <Download className="w-3.5 h-3.5" /> PDF
                         </Button>
                       )}

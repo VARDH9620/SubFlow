@@ -47,9 +47,9 @@ export default function AdminPlans() {
 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div className="flex gap-2 flex-wrap">
-          <button onClick={() => setFilterSvc('all')} className={`px-3 py-1.5 text-sm rounded-lg cursor-pointer transition-colors ${filterSvc === 'all' ? 'bg-primary-50 dark:bg-primary-500/10 text-primary-700 dark:text-primary-400' : 'text-gray-500 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-dark-surface-3/60'}`}>All</button>
+          <button onClick={() => setFilterSvc('all')} className={`px-3 py-1.5 text-sm rounded-lg cursor-pointer transition-colors ${filterSvc === 'all' ? 'bg-primary-50 dark:bg-primary-500/10 text-primary/90 dark:text-primary-400' : 'text-muted-foreground dark:text-slate-300 hover:bg-muted dark:hover:bg-dark-surface-3/60'}`}>All</button>
           {services.map(s => (
-            <button key={s.id} onClick={() => setFilterSvc(s.id)} className={`px-3 py-1.5 text-sm rounded-lg cursor-pointer transition-colors ${filterSvc === s.id ? 'bg-primary-50 dark:bg-primary-500/10 text-primary-700 dark:text-primary-400' : 'text-gray-500 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-dark-surface-3/60'}`}>{s.name}</button>
+            <button key={s.id} onClick={() => setFilterSvc(s.id)} className={`px-3 py-1.5 text-sm rounded-lg cursor-pointer transition-colors ${filterSvc === s.id ? 'bg-primary-50 dark:bg-primary-500/10 text-primary/90 dark:text-primary-400' : 'text-muted-foreground dark:text-slate-300 hover:bg-muted dark:hover:bg-dark-surface-3/60'}`}>{s.name}</button>
           ))}
         </div>
         <div className="w-full sm:w-64"><SearchBar value={search} onChange={setSearch} /></div>
@@ -63,25 +63,25 @@ export default function AdminPlans() {
             <Card key={plan.id}>
               <div className="flex items-start justify-between mb-2">
                 <div>
-                  <h3 className="font-semibold text-gray-900 dark:text-slate-100">{plan.name}</h3>
-                  <p className="text-xs text-gray-500 dark:text-slate-300">{getSvcName(plan.service_id)}</p>
+                  <h3 className="font-semibold text-foreground">{plan.name}</h3>
+                  <p className="text-xs text-muted-foreground dark:text-slate-300">{getSvcName(plan.service_id)}</p>
                 </div>
                 <Badge variant={plan.status === 'active' ? 'success' : 'default'}>{plan.status}</Badge>
               </div>
               <div className="my-3">
-                <span className="text-2xl font-bold text-gray-900 dark:text-white">${plan.price.toFixed(2)}</span>
-                <span className="text-sm text-gray-500 dark:text-slate-300">/{plan.billing_cycle === 'monthly' ? 'mo' : plan.billing_cycle === 'annual' ? 'yr' : 'qtr'}</span>
+                <span className="text-2xl font-bold text-foreground dark:text-white">${plan.price.toFixed(2)}</span>
+                <span className="text-sm text-muted-foreground dark:text-slate-300">/{plan.billing_cycle === 'monthly' ? 'mo' : plan.billing_cycle === 'annual' ? 'yr' : 'qtr'}</span>
               </div>
               <ul className="space-y-1 mb-4">
                 {plan.features.slice(0, 3).map((f, i) => (
-                  <li key={i} className="flex items-center gap-1.5 text-xs text-gray-600 dark:text-slate-300"><Check className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" /> {f}</li>
+                  <li key={i} className="flex items-center gap-1.5 text-xs text-muted-foreground dark:text-slate-300"><Check className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" /> {f}</li>
                 ))}
-                {plan.features.length > 3 && <li className="text-xs text-gray-400 dark:text-slate-400">+{plan.features.length - 3} more</li>}
+                {plan.features.length > 3 && <li className="text-xs text-muted-foreground/80 dark:text-slate-400">+{plan.features.length - 3} more</li>}
               </ul>
-              <div className="flex items-center justify-between pt-3 border-t border-gray-100 dark:border-dark-surface-3/60">
-                <span className="text-xs text-gray-400 dark:text-slate-400">Trial: {plan.trial_days}d · Max: {plan.max_users} users</span>
+              <div className="flex items-center justify-between pt-3 border-t border-border/50 dark:border-dark-surface-3/60">
+                <span className="text-xs text-muted-foreground/80 dark:text-slate-400">Trial: {plan.trial_days}d · Max: {plan.max_users} users</span>
                 <div className="flex gap-1">
-                  <button onClick={() => openEdit(plan)} className="p-1.5 hover:bg-gray-100 dark:hover:bg-dark-surface-3/60 rounded-lg cursor-pointer"><Edit className="w-4 h-4 text-gray-500 dark:text-slate-300" /></button>
+                  <button onClick={() => openEdit(plan)} className="p-1.5 hover:bg-muted dark:hover:bg-dark-surface-3/60 rounded-lg cursor-pointer"><Edit className="w-4 h-4 text-muted-foreground dark:text-slate-300" /></button>
                   <button onClick={() => setDeleteId(plan.id)} className="p-1.5 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg cursor-pointer"><Trash2 className="w-4 h-4 text-red-500" /></button>
                 </div>
               </div>
@@ -112,13 +112,13 @@ export default function AdminPlans() {
           </div>
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="text-sm font-medium text-gray-700">Features</label>
-              <button type="button" onClick={addFeature} className="text-xs text-primary-600 font-medium hover:text-primary-700">+ Add Feature</button>
+              <label className="text-sm font-medium text-muted-foreground">Features</label>
+              <button type="button" onClick={addFeature} className="text-xs text-primary font-medium hover:text-primary/90">+ Add Feature</button>
             </div>
             <div className="space-y-2">
               {form.features.map((f, i) => (
                 <div key={i} className="flex gap-2">
-                  <input value={f} onChange={e => updateFeature(i, e.target.value)} className="flex-1 px-3 py-1.5 border border-gray-300 rounded-lg text-sm" placeholder="Feature name" />
+                  <input value={f} onChange={e => updateFeature(i, e.target.value)} className="flex-1 px-3 py-1.5 border border-input rounded-lg text-sm" placeholder="Feature name" />
                   {form.features.length > 1 && <button onClick={() => removeFeature(i)} className="text-red-400 hover:text-red-600 px-2">×</button>}
                 </div>
               ))}

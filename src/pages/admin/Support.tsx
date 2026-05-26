@@ -73,11 +73,11 @@ export default function AdminSupport() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <h4 className="text-sm font-semibold text-gray-900 truncate">{ticket.subject}</h4>
+                    <h4 className="text-sm font-semibold text-foreground truncate">{ticket.subject}</h4>
                     <Badge variant={ticket.priority === 'critical' ? 'danger' : ticket.priority === 'high' ? 'warning' : 'default'}>{ticket.priority}</Badge>
                   </div>
-                  <p className="text-xs text-gray-500 truncate mt-0.5">{ticket.description}</p>
-                  <div className="flex items-center gap-3 mt-1.5 text-xs text-gray-400">
+                  <p className="text-xs text-muted-foreground truncate mt-0.5">{ticket.description}</p>
+                  <div className="flex items-center gap-3 mt-1.5 text-xs text-muted-foreground/80">
                     <span className="flex items-center gap-1"><UserIcon className="w-3 h-3" /> {ticket.user_name}</span>
                     <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {new Date(ticket.created_at).toLocaleDateString()}</span>
                     <Badge>{ticket.category}</Badge>
@@ -98,22 +98,22 @@ export default function AdminSupport() {
               <Badge variant={statusColors[selected.status]}>{selected.status.replace('_', ' ')}</Badge>
               <Badge>{selected.category}</Badge>
               <Badge variant={selected.priority === 'critical' ? 'danger' : 'default'}>{selected.priority}</Badge>
-              <span className="text-xs text-gray-400">From: {selected.user_name} ({selected.user_email})</span>
+              <span className="text-xs text-muted-foreground/80">From: {selected.user_name} ({selected.user_email})</span>
             </div>
 
-            <div className="bg-gray-50 rounded-lg p-4 mb-4">
-              <p className="text-sm text-gray-700">{selected.description}</p>
+            <div className="bg-muted/50 rounded-lg p-4 mb-4">
+              <p className="text-sm text-muted-foreground">{selected.description}</p>
             </div>
 
             {messages.length > 0 && (
               <div className="space-y-3 mb-4 max-h-48 overflow-y-auto">
                 {messages.map(msg => (
                   <div key={msg.id} className={`flex gap-3 ${msg.sender_role === 'admin' ? 'flex-row-reverse' : ''}`}>
-                    <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold shrink-0 ${msg.sender_role === 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-primary-100 text-primary-700'}`}>
+                    <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold shrink-0 ${msg.sender_role === 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-primary-100 text-primary/90'}`}>
                       {msg.sender_name?.[0] || '?'}
                     </div>
-                    <div className={`max-w-[75%] p-3 rounded-lg text-sm ${msg.sender_role === 'admin' ? 'bg-purple-50 text-gray-700' : 'bg-white border text-gray-700'}`}>
-                      <p className="text-xs font-medium text-gray-400 mb-1">{msg.sender_name} · {msg.sender_role}</p>
+                    <div className={`max-w-[75%] p-3 rounded-lg text-sm ${msg.sender_role === 'admin' ? 'bg-purple-50 text-muted-foreground' : 'bg-white border text-muted-foreground'}`}>
+                      <p className="text-xs font-medium text-muted-foreground/80 mb-1">{msg.sender_name} · {msg.sender_role}</p>
                       {msg.message}
                     </div>
                   </div>
@@ -124,12 +124,12 @@ export default function AdminSupport() {
             {/* Reply */}
             <div className="mb-4">
               <textarea value={reply} onChange={e => setReply(e.target.value)} rows={3} placeholder="Type your reply..."
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 mb-2" />
+                className="w-full px-3 py-2 border border-input rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 mb-2" />
               <Button size="sm" onClick={handleReply} disabled={!reply.trim()}>Send Reply</Button>
             </div>
 
             {/* Status update */}
-            <div className="pt-4 border-t border-gray-100">
+            <div className="pt-4 border-t border-border/50">
               <div className="flex items-center gap-3">
                 <Select
                   label=""

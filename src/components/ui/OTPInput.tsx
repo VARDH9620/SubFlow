@@ -59,7 +59,7 @@ export function OTPInput({ length = 6, value, onChange, error, disabled }: OTPIn
                 ? 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20'
                 : value[i]
                   ? 'border-primary-400 dark:border-primary-500 bg-primary-50 dark:bg-primary-900/20'
-                  : 'border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800'
+                  : 'border-input bg-card'
             } disabled:opacity-50`}
           />
         ))}
@@ -129,25 +129,25 @@ export function OTPVerificationPage({
   const maskedEmail = email.replace(/(.{2})(.*)(@.*)/, (_, a, b, c) => a + '*'.repeat(b.length) + c);
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-6 py-12 bg-white dark:bg-slate-900">
+    <div className="min-h-screen flex items-center justify-center px-6 py-12 bg-card">
       <div className="w-full max-w-md">
         {/* Back button */}
-        <button onClick={onBack} className="flex items-center gap-2 text-sm text-gray-500 dark:text-slate-300 hover:text-gray-700 dark:hover:text-slate-200 mb-8 transition-colors">
+        <button onClick={onBack} className="flex items-center gap-2 text-sm text-muted-foreground dark:text-slate-300 hover:text-muted-foreground dark:hover:text-slate-200 mb-8 transition-colors">
           ← Back
         </button>
 
         {/* Icon */}
         <div className="flex justify-center mb-6">
           <div className="w-20 h-20 bg-primary-50 dark:bg-primary-900/30 rounded-2xl flex items-center justify-center">
-            {icon || <KeyRound className="w-10 h-10 text-primary-600 dark:text-primary-400" />}
+            {icon || <KeyRound className="w-10 h-10 text-primary" />}
           </div>
         </div>
 
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100 mb-2">{title}</h1>
-          <p className="text-sm text-gray-500 dark:text-slate-300">{subtitle}</p>
-          <p className="text-sm font-medium text-gray-900 dark:text-slate-200 mt-2">
+          <h1 className="text-2xl font-bold text-foreground mb-2">{title}</h1>
+          <p className="text-sm text-muted-foreground dark:text-slate-300">{subtitle}</p>
+          <p className="text-sm font-medium text-foreground mt-2">
             <Mail className="w-4 h-4 inline mr-1.5 -mt-0.5" />
             {maskedEmail}
           </p>
@@ -170,11 +170,11 @@ export function OTPVerificationPage({
         {/* Resend */}
         <div className="text-center mt-5">
           {resendTimer > 0 ? (
-            <p className="text-sm text-gray-400 dark:text-slate-400">
-              Resend code in <span className="font-semibold text-gray-600 dark:text-slate-300">{resendTimer}s</span>
+            <p className="text-sm text-muted-foreground/80 dark:text-slate-400">
+              Resend code in <span className="font-semibold text-muted-foreground dark:text-slate-300">{resendTimer}s</span>
             </p>
           ) : (
-            <button onClick={handleResend} className="text-sm text-primary-600 dark:text-primary-400 font-semibold hover:text-primary-700 dark:hover:text-primary-300 flex items-center gap-1.5 mx-auto">
+            <button onClick={handleResend} className="text-sm text-primary font-semibold hover:text-primary/90 dark:hover:text-primary-300 flex items-center gap-1.5 mx-auto">
               <RefreshCw className="w-3.5 h-3.5" /> Resend Verification Code
             </button>
           )}
@@ -182,11 +182,11 @@ export function OTPVerificationPage({
 
         {/* Help text */}
         <div className="mt-6 space-y-3">
-          <div className="flex items-start gap-2 text-xs text-gray-400 dark:text-slate-400">
+          <div className="flex items-start gap-2 text-xs text-muted-foreground/80 dark:text-slate-400">
             <CheckCircle className="w-4 h-4 flex-shrink-0 mt-0.5 text-emerald-500" />
             <span>The code expires in <strong>10 minutes</strong>. You have <strong>5 attempts</strong> before it invalidates.</span>
           </div>
-          <div className="flex items-start gap-2 text-xs text-gray-400 dark:text-slate-400">
+          <div className="flex items-start gap-2 text-xs text-muted-foreground/80 dark:text-slate-400">
             <CheckCircle className="w-4 h-4 flex-shrink-0 mt-0.5 text-emerald-500" />
             <span>Check your spam/junk folder if you don't see the email.</span>
           </div>
@@ -252,7 +252,7 @@ export function PasswordStrength({ password }: PasswordStrengthProps) {
         {checks.map((check, i) => (
           <div key={i} className="flex items-center gap-1.5 text-xs">
             <CheckCircle className={`w-3.5 h-3.5 ${check.met ? 'text-emerald-500' : 'text-gray-300 dark:text-slate-400'}`} />
-            <span className={check.met ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-400 dark:text-slate-400'}>{check.label}</span>
+            <span className={check.met ? 'text-emerald-600 dark:text-emerald-400' : 'text-muted-foreground/80 dark:text-slate-400'}>{check.label}</span>
           </div>
         ))}
       </div>

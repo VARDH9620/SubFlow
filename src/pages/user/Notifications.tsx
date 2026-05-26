@@ -67,14 +67,14 @@ export default function Notifications() {
                 <div className={`p-2.5 rounded-xl flex-shrink-0 ${typeBg[n.type]}`}>{typeIcons[n.type]}</div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <h4 className="text-sm font-semibold text-gray-900 dark:text-slate-100">{n.title}</h4>
+                    <h4 className="text-sm font-semibold text-foreground">{n.title}</h4>
                     {!n.read && <span className="w-2 h-2 bg-primary-500 rounded-full flex-shrink-0" />}
                   </div>
-                  <p className="text-sm text-gray-600 dark:text-slate-300 mt-0.5">{n.message}</p>
-                  <p className="text-xs text-gray-400 dark:text-slate-400 mt-1.5">{new Date(n.created_at).toLocaleString()}</p>
+                  <p className="text-sm text-muted-foreground dark:text-slate-300 mt-0.5">{n.message}</p>
+                  <p className="text-xs text-muted-foreground/80 dark:text-slate-400 mt-1.5">{new Date(n.created_at).toLocaleString()}</p>
                 </div>
                 {!n.read && (
-                  <button onClick={() => { db.markNotificationRead(n.id); refresh(); }} className="text-xs text-primary-600 dark:text-primary-400 font-medium hover:text-primary-700 flex-shrink-0 mt-1">
+                  <button onClick={() => { db.markNotificationRead(n.id); refresh(); }} className="text-xs text-primary font-medium hover:text-primary/90 flex-shrink-0 mt-1">
                     Mark read
                   </button>
                 )}

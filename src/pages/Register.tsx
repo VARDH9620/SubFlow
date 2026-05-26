@@ -132,12 +132,12 @@ export default function Register() {
         <div className="absolute -bottom-32 -left-32 w-96 h-96 bg-white/5 rounded-full" />
       </div>
 
-      <div className="flex-1 flex items-center justify-center px-6 py-12 bg-white dark:bg-slate-900">
+      <div className="flex-1 flex items-center justify-center px-6 py-12 bg-card">
         <div className="w-full max-w-md">
           <div className="flex items-center justify-between mb-8">
             <Link to="/" className="lg:hidden flex items-center gap-2">
-              <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center"><Zap className="w-4 h-4 text-white" /></div>
-              <span className="text-lg font-bold text-gray-900 dark:text-slate-100">SubFlow</span>
+              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center"><Zap className="w-4 h-4 text-white" /></div>
+              <span className="text-lg font-bold text-foreground">SubFlow</span>
             </Link>
             <ThemeToggle compact />
           </div>
@@ -145,8 +145,8 @@ export default function Register() {
           {/* ========== STEP: Form ========== */}
           {step === 'form' && (
             <>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Create your account</h1>
-              <p className="mt-2 text-sm text-gray-500 dark:text-slate-300">Already have an account? <Link to="/login" className="text-primary-600 dark:text-primary-400 font-medium hover:text-primary-700">Sign in</Link></p>
+              <h1 className="text-2xl font-bold text-foreground">Create your account</h1>
+              <p className="mt-2 text-sm text-muted-foreground dark:text-slate-300">Already have an account? <Link to="/login" className="text-primary font-medium hover:text-primary/90">Sign in</Link></p>
 
               {error && <div className="mt-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 text-sm rounded-lg">{error}</div>}
 
@@ -159,7 +159,7 @@ export default function Register() {
                 <Input label="Phone number" type="tel" value={form.phone} onChange={e => set('phone', e.target.value)} placeholder="+1 (555) 000-0000" />
                 <div className="relative">
                   <Input label="Password" type={showPw ? 'text' : 'password'} value={form.password} onChange={e => set('password', e.target.value)} required placeholder="Min 8 characters" />
-                  <button type="button" onClick={() => setShowPw(!showPw)} className="absolute right-3 top-[34px] text-gray-400 dark:text-slate-400 hover:text-gray-600 dark:hover:text-slate-300">
+                  <button type="button" onClick={() => setShowPw(!showPw)} className="absolute right-3 top-[34px] text-muted-foreground/80 dark:text-slate-400 hover:text-muted-foreground dark:hover:text-slate-300">
                     {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                   <PasswordStrength password={form.password} />
@@ -168,7 +168,7 @@ export default function Register() {
                 <Button type="submit" loading={loading} className="w-full py-3">
                   <Mail className="w-4 h-4 mr-2" /> Continue & Verify Email
                 </Button>
-                <p className="text-xs text-gray-400 dark:text-slate-400 text-center">
+                <p className="text-xs text-muted-foreground/80 dark:text-slate-400 text-center">
                   By creating an account, you agree to our Terms of Service and Privacy Policy.
                 </p>
               </form>
@@ -181,14 +181,14 @@ export default function Register() {
               <div className="text-center mb-8">
                 <div className="flex justify-center mb-4">
                   <div className="w-20 h-20 bg-primary-50 dark:bg-primary-900/30 rounded-2xl flex items-center justify-center">
-                    <Mail className="w-10 h-10 text-primary-600 dark:text-primary-400" />
+                    <Mail className="w-10 h-10 text-primary" />
                   </div>
                 </div>
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100 mb-2">Verify Your Email</h1>
-                <p className="text-sm text-gray-500 dark:text-slate-300">
+                <h1 className="text-2xl font-bold text-foreground mb-2">Verify Your Email</h1>
+                <p className="text-sm text-muted-foreground dark:text-slate-300">
                   We've sent a 6-digit verification code to
                 </p>
-                <p className="text-sm font-semibold text-gray-900 dark:text-slate-200 mt-1">{maskedEmail}</p>
+                <p className="text-sm font-semibold text-foreground mt-1">{maskedEmail}</p>
               </div>
 
               <OTPInput value={otp} onChange={setOtp} error={otpError} disabled={verifying} />
@@ -199,17 +199,17 @@ export default function Register() {
 
               <div className="text-center mt-5">
                 {resendTimer > 0 ? (
-                  <p className="text-sm text-gray-400 dark:text-slate-400">
-                    Resend code in <span className="font-semibold text-gray-600 dark:text-slate-300">{resendTimer}s</span>
+                  <p className="text-sm text-muted-foreground/80 dark:text-slate-400">
+                    Resend code in <span className="font-semibold text-muted-foreground dark:text-slate-300">{resendTimer}s</span>
                   </p>
                 ) : (
-                  <button onClick={handleResendOTP} className="text-sm text-primary-600 dark:text-primary-400 font-semibold hover:text-primary-700 flex items-center gap-1.5 mx-auto">
+                  <button onClick={handleResendOTP} className="text-sm text-primary font-semibold hover:text-primary/90 flex items-center gap-1.5 mx-auto">
                     Resend Code
                   </button>
                 )}
               </div>
 
-              <button onClick={() => { setStep('form'); setOtp(Array(6).fill('')); setOtpError(''); }} className="flex items-center justify-center gap-2 mt-4 text-sm text-gray-500 dark:text-slate-300 hover:text-gray-700 dark:hover:text-slate-200 mx-auto">
+              <button onClick={() => { setStep('form'); setOtp(Array(6).fill('')); setOtpError(''); }} className="flex items-center justify-center gap-2 mt-4 text-sm text-muted-foreground dark:text-slate-300 hover:text-muted-foreground dark:hover:text-slate-200 mx-auto">
                 ← Change email
               </button>
             </ResendTimerWrapper>
@@ -223,11 +223,11 @@ export default function Register() {
                   <CheckCircle className="w-10 h-10 text-emerald-600 dark:text-emerald-400" />
                 </div>
               </div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100 mb-2">Account Created!</h1>
-              <p className="text-sm text-gray-500 dark:text-slate-300 mb-2">
+              <h1 className="text-2xl font-bold text-foreground mb-2">Account Created!</h1>
+              <p className="text-sm text-muted-foreground dark:text-slate-300 mb-2">
                 Your email has been verified and your account is ready.
               </p>
-              <p className="text-xs text-gray-400 dark:text-slate-400 mb-8">
+              <p className="text-xs text-muted-foreground/80 dark:text-slate-400 mb-8">
                 Redirecting you to your dashboard...
               </p>
               <Button onClick={() => navigate('/dashboard')} className="w-full py-3">

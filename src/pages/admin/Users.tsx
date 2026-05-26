@@ -50,7 +50,7 @@ export default function AdminUsers() {
         <div className="flex gap-2">
           {(['all', 'user', 'admin'] as const).map(r => (
             <button key={r} onClick={() => setRoleFilter(r)}
-              className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${roleFilter === r ? 'bg-primary-50 text-primary-700' : 'text-gray-500 hover:bg-gray-100'}`}>
+              className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${roleFilter === r ? 'bg-primary-50 text-primary/90' : 'text-muted-foreground hover:bg-muted'}`}>
               {r === 'all' ? 'All' : r === 'user' ? 'Users' : 'Admins'}
               <span className="ml-1.5 text-xs opacity-60">{r === 'all' ? users.length : users.filter(u => u.role === r).length}</span>
             </button>
@@ -68,29 +68,29 @@ export default function AdminUsers() {
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-gray-200">
-                  <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500 uppercase">User</th>
-                  <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500 uppercase">Email</th>
-                  <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500 uppercase">Phone</th>
-                  <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500 uppercase">Role</th>
-                  <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500 uppercase">Status</th>
-                  <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500 uppercase">Joined</th>
-                  <th className="text-right py-3 px-4 text-xs font-semibold text-gray-500 uppercase">Actions</th>
+                <tr className="border-b border-border">
+                  <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase">User</th>
+                  <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase">Email</th>
+                  <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase">Phone</th>
+                  <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase">Role</th>
+                  <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase">Status</th>
+                  <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase">Joined</th>
+                  <th className="text-right py-3 px-4 text-xs font-semibold text-muted-foreground uppercase">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {filtered.map(user => (
-                  <tr key={user.id} className="border-b border-gray-50 hover:bg-gray-50/50">
+                  <tr key={user.id} className="border-b border-gray-50 hover:bg-muted/50/50">
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-3">
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold ${user.role === 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-primary-100 text-primary-700'}`}>
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold ${user.role === 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-primary-100 text-primary/90'}`}>
                           {user.first_name[0]}{user.last_name[0]}
                         </div>
-                        <span className="text-sm font-medium text-gray-900">{user.first_name} {user.last_name}</span>
+                        <span className="text-sm font-medium text-foreground">{user.first_name} {user.last_name}</span>
                       </div>
                     </td>
-                    <td className="py-3 px-4 text-sm text-gray-700">{user.email}</td>
-                    <td className="py-3 px-4 text-sm text-gray-500">{user.phone || '—'}</td>
+                    <td className="py-3 px-4 text-sm text-muted-foreground">{user.email}</td>
+                    <td className="py-3 px-4 text-sm text-muted-foreground">{user.phone || '—'}</td>
                     <td className="py-3 px-4">
                       <Badge variant={user.role === 'admin' ? 'purple' : 'default'}>
                         {user.role === 'admin' && <Shield className="w-3 h-3 mr-1" />}
@@ -104,11 +104,11 @@ export default function AdminUsers() {
                         <Badge variant="warning"><UserX className="w-3 h-3 mr-1" /> Unverified</Badge>
                       )}
                     </td>
-                    <td className="py-3 px-4 text-sm text-gray-500">{new Date(user.created_at).toLocaleDateString()}</td>
+                    <td className="py-3 px-4 text-sm text-muted-foreground">{new Date(user.created_at).toLocaleDateString()}</td>
                     <td className="py-3 px-4 text-right">
                       <div className="flex gap-1 justify-end">
-                        <button onClick={() => handleEdit(user)} className="p-1.5 hover:bg-gray-100 rounded-lg" title="Edit">
-                          <Edit className="w-4 h-4 text-gray-500" />
+                        <button onClick={() => handleEdit(user)} className="p-1.5 hover:bg-muted rounded-lg" title="Edit">
+                          <Edit className="w-4 h-4 text-muted-foreground" />
                         </button>
                         {user.role !== 'admin' && (
                           <button onClick={() => { setSelected(user); setShowDelete(true); }} className="p-1.5 hover:bg-red-50 rounded-lg" title="Delete">
@@ -135,8 +135,8 @@ export default function AdminUsers() {
           <Input label="Email" value={editForm.email} onChange={e => setEditForm(p => ({ ...p, email: e.target.value }))} />
           <Input label="Phone" value={editForm.phone} onChange={e => setEditForm(p => ({ ...p, phone: e.target.value }))} />
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Role</label>
-            <select value={editForm.role} onChange={e => setEditForm(p => ({ ...p, role: e.target.value as UserRole }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
+            <label className="block text-sm font-medium text-muted-foreground mb-1.5">Role</label>
+            <select value={editForm.role} onChange={e => setEditForm(p => ({ ...p, role: e.target.value as UserRole }))} className="w-full px-3 py-2 border border-input rounded-lg text-sm">
               <option value="user">User</option>
               <option value="admin">Admin</option>
             </select>

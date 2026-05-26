@@ -69,18 +69,18 @@ export default function Profile() {
       {/* Profile Card */}
       <Card className="mb-6">
         <div className="flex items-start gap-6">
-          <div className="w-20 h-20 bg-primary-100 dark:bg-primary-900/40 text-primary-600 dark:text-primary-400 rounded-2xl flex items-center justify-center text-2xl font-bold">
+          <div className="w-20 h-20 bg-primary-100 dark:bg-primary-900/40 text-primary rounded-2xl flex items-center justify-center text-2xl font-bold">
             {user?.first_name?.[0]}{user?.last_name?.[0]}
           </div>
           <div className="flex-1">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-slate-100">{user?.first_name} {user?.last_name}</h2>
-            <p className="text-sm text-gray-500 dark:text-slate-300">{user?.email}</p>
+            <h2 className="text-xl font-bold text-foreground">{user?.first_name} {user?.last_name}</h2>
+            <p className="text-sm text-muted-foreground dark:text-slate-300">{user?.email}</p>
             <div className="flex items-center gap-4 mt-3">
-              <div className="flex items-center gap-1.5 text-xs text-gray-400 dark:text-slate-400">
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground/80 dark:text-slate-400">
                 <Shield className="w-3.5 h-3.5" />
                 {user?.role === 'admin' ? 'Administrator' : 'Member'}
               </div>
-              <div className="flex items-center gap-1.5 text-xs text-gray-400 dark:text-slate-400">
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground/80 dark:text-slate-400">
                 <Calendar className="w-3.5 h-3.5" />
                 Joined {user?.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A'}
               </div>
@@ -95,7 +95,7 @@ export default function Profile() {
       {/* Edit Profile */}
       <Card className="mb-6">
         <div className="flex items-center justify-between mb-6">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100">Personal Information</h3>
+          <h3 className="text-lg font-semibold text-foreground">Personal Information</h3>
           {!editing && <Button variant="outline" size="sm" onClick={() => setEditing(true)}>Edit</Button>}
         </div>
 
@@ -114,20 +114,20 @@ export default function Profile() {
           </form>
         ) : (
           <div className="grid grid-cols-2 gap-6">
-            <div><p className="text-xs text-gray-400 dark:text-slate-400 uppercase tracking-wider mb-1">First Name</p><p className="text-sm font-medium text-gray-900 dark:text-slate-200">{user?.first_name}</p></div>
-            <div><p className="text-xs text-gray-400 dark:text-slate-400 uppercase tracking-wider mb-1">Last Name</p><p className="text-sm font-medium text-gray-900 dark:text-slate-200">{user?.last_name}</p></div>
-            <div><p className="text-xs text-gray-400 dark:text-slate-400 uppercase tracking-wider mb-1">Email</p><p className="text-sm font-medium text-gray-900 dark:text-slate-200">{user?.email}</p></div>
-            <div><p className="text-xs text-gray-400 dark:text-slate-400 uppercase tracking-wider mb-1">Phone</p><p className="text-sm font-medium text-gray-900 dark:text-slate-200">{user?.phone || 'Not set'}</p></div>
+            <div><p className="text-xs text-muted-foreground/80 dark:text-slate-400 uppercase tracking-wider mb-1">First Name</p><p className="text-sm font-medium text-foreground">{user?.first_name}</p></div>
+            <div><p className="text-xs text-muted-foreground/80 dark:text-slate-400 uppercase tracking-wider mb-1">Last Name</p><p className="text-sm font-medium text-foreground">{user?.last_name}</p></div>
+            <div><p className="text-xs text-muted-foreground/80 dark:text-slate-400 uppercase tracking-wider mb-1">Email</p><p className="text-sm font-medium text-foreground">{user?.email}</p></div>
+            <div><p className="text-xs text-muted-foreground/80 dark:text-slate-400 uppercase tracking-wider mb-1">Phone</p><p className="text-sm font-medium text-foreground">{user?.phone || 'Not set'}</p></div>
           </div>
         )}
       </Card>
 
       {/* Secure Password Change */}
       <Card>
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100 mb-2 flex items-center gap-2">
+        <h3 className="text-lg font-semibold text-foreground mb-2 flex items-center gap-2">
           <Lock className="w-5 h-5 text-primary-500" /> Change Password
         </h3>
-        <p className="text-sm text-gray-500 dark:text-slate-300 mb-6">
+        <p className="text-sm text-muted-foreground dark:text-slate-300 mb-6">
           For your security, enter your current password before setting a new one.
         </p>
 
@@ -139,7 +139,7 @@ export default function Profile() {
           {/* Current password */}
           <div className="relative">
             <Input label="Current Password" type={showCurrent ? 'text' : 'password'} value={pwForm.current} onChange={e => setPwForm(p => ({ ...p, current: e.target.value }))} required placeholder="Enter current password" />
-            <button type="button" onClick={() => setShowCurrent(!showCurrent)} className="absolute right-3 top-[34px] text-gray-400 dark:text-slate-400 hover:text-gray-600">
+            <button type="button" onClick={() => setShowCurrent(!showCurrent)} className="absolute right-3 top-[34px] text-muted-foreground/80 dark:text-slate-400 hover:text-muted-foreground">
               {showCurrent ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             </button>
           </div>
@@ -154,7 +154,7 @@ export default function Profile() {
           {/* New password */}
           <div className="relative">
             <Input label="New Password" type={showNew ? 'text' : 'password'} value={pwForm.newPw} onChange={e => setPwForm(p => ({ ...p, newPw: e.target.value }))} required placeholder="Enter new password" />
-            <button type="button" onClick={() => setShowNew(!showNew)} className="absolute right-3 top-[34px] text-gray-400 dark:text-slate-400 hover:text-gray-600">
+            <button type="button" onClick={() => setShowNew(!showNew)} className="absolute right-3 top-[34px] text-muted-foreground/80 dark:text-slate-400 hover:text-muted-foreground">
               {showNew ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             </button>
             <PasswordStrength password={pwForm.newPw} />
