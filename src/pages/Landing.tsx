@@ -66,21 +66,12 @@ export default function Landing() {
           </div>
           <p className="mt-4 text-xs text-muted-foreground/80">No credit card required · 14-day free trial · Cancel anytime</p>
 
-          {/* Demo credentials */}
-          <div className="mt-8 max-w-md mx-auto bg-card rounded-xl p-4 border border-border">
-            <p className="text-sm font-medium text-foreground/90 mb-2">Demo Credentials</p>
-            <div className="grid grid-cols-2 gap-3 text-xs text-muted-foreground">
-              <div className="bg-muted/50 dark:bg-slate-700 rounded-lg p-2.5 border border-border/50 dark:border-slate-600">
-                <p className="font-semibold text-foreground">Admin</p>
-                <p>admin@subflow.io</p>
-                <p>admin123</p>
-              </div>
-              <div className="bg-muted/50 dark:bg-slate-700 rounded-lg p-2.5 border border-border/50 dark:border-slate-600">
-                <p className="font-semibold text-foreground">User</p>
-                <p>john@example.com</p>
-                <p>user123</p>
-              </div>
-            </div>
+          {/* About Company */}
+          <div className="mt-8 max-w-lg mx-auto bg-card rounded-xl p-5 border border-border text-left">
+            <p className="text-sm font-semibold text-foreground mb-1.5">About SubFlow</p>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              SubFlow is an enterprise subscription intelligence platform designed to give organizations full control over their software investments. By unifying operations, billing analytics, and tenant management into a single, cohesive interface, we help scaleups and enterprises optimize SaaS costs and streamline support workflows.
+            </p>
           </div>
         </div>
       </section>
