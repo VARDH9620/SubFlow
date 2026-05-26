@@ -65,8 +65,8 @@ export function ThemeToggle({ compact = false }: { compact?: boolean }) {
                 onClick={() => { setTheme(opt.value); setOpen(false); }}
                 className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm transition-colors ${
                   theme === opt.value
-                    ? 'bg-primary-50 dark:bg-primary-900/30 text-primary/90 dark:text-primary-400'
-                    : 'text-foreground/90 hover:bg-muted/50 dark:hover:bg-slate-700'
+                    ? 'bg-accent text-accent-foreground font-semibold'
+                    : 'text-foreground/90 hover:bg-muted'
                 }`}
               >
                 {opt.icon}
