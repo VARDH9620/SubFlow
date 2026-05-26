@@ -2,9 +2,16 @@ import { type ReactNode, useEffect, useRef } from 'react';
 import { X, CheckCircle, AlertCircle, Info, AlertTriangle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import type { Toast } from '../../types';
+import { motion, AnimatePresence } from 'framer-motion';
 
 /* ================================================================
-   BUTTON — Refined with better shadow, hover, active states
+   ANIMATION CONFIGURATIONS
+   ================================================================ */
+const springConfig = { type: 'spring', stiffness: 400, damping: 30 };
+const transitionConfig = { duration: 0.2, ease: [0.32, 0.72, 0, 1] };
+
+/* ================================================================
+   BUTTON — Premium interactions
    ================================================================ */
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'danger' | 'ghost' | 'outline';
@@ -14,29 +21,36 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 export function Button({ variant = 'primary', size = 'md', loading, children, className = '', disabled, ...props }: ButtonProps) {
-  const base = 'inline-flex items-center justify-center font-medium rounded-lg transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-slate-900 active:scale-[0.97] disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100 cursor-pointer';
+  const base = 'inline-flex relative items-center justify-center font-medium rounded-xl transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden';
   const v: Record<string, string> = {
-    primary: 'bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500/50 shadow-sm shadow-primary-600/20 dark:shadow-none',
-    secondary: 'bg-surface-2 dark:bg-dark-surface-3 text-gray-700 dark:text-slate-200 hover:bg-gray-200 dark:hover:bg-slate-600 focus:ring-gray-300',
-    danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500/50',
-    ghost: 'text-gray-600 dark:text-slate-300 hover:bg-surface-2 dark:hover:bg-dark-surface-3 focus:ring-gray-300',
-    outline: 'border border-gray-250 dark:border-slate-600 text-gray-700 dark:text-slate-300 hover:bg-surface-1 dark:hover:bg-dark-surface-2 focus:ring-primary-500/50',
+    primary: 'bg-primary text-primary-foreground shadow-premium hover:shadow-premium-hover focus:ring-primary/50',
+    secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80 focus:ring-secondary/50',
+    danger: 'bg-destructive text-destructive-foreground shadow-premium hover:shadow-premium-hover focus:ring-destructive/50',
+    ghost: 'bg-transparent text-muted-foreground hover:text-foreground hover:bg-muted focus:ring-muted',
+    outline: 'border border-border bg-transparent text-foreground hover:bg-muted focus:ring-border',
   };
   const s: Record<string, string> = {
-    sm: 'h-8 px-3 text-xs gap-1.5',
-    md: 'h-9 px-4 text-sm gap-2',
-    lg: 'h-11 px-6 text-sm gap-2',
+    sm: 'h-8 px-3 text-[13px] gap-1.5',
+    md: 'h-10 px-4 text-[14px] gap-2',
+    lg: 'h-12 px-6 text-[15px] gap-2.5',
   };
   return (
-    <button className={`${base} ${v[variant]} ${s[size]} ${className}`} disabled={disabled || loading} {...props}>
-      {loading && <svg className="animate-spin h-3.5 w-3.5" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>}
+    <motion.button 
+      whileHover={disabled || loading ? {} : { scale: 1.01 }}
+      whileTap={disabled || loading ? {} : { scale: 0.97 }}
+      transition={springConfig}
+      className={`${base} ${v[variant]} ${s[size]} ${className}`} 
+      disabled={disabled || loading} 
+      {...props}
+    >
+      {loading && <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>}
       {children}
-    </button>
+    </motion.button>
   );
 }
 
 /* ================================================================
-   INPUT — Refined focus ring & placeholder colors
+   INPUT — Premium Focus States
    ================================================================ */
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string; error?: string; helper?: string;
@@ -45,10 +59,20 @@ export function Input({ label, error, helper, className = '', id, ...props }: In
   const elId = id || label?.toLowerCase().replace(/\s+/g, '-');
   return (
     <div className="w-full space-y-1.5">
-      {label && <label htmlFor={elId} className="block text-[13px] font-medium text-gray-700 dark:text-slate-300">{label}</label>}
-      <input id={elId} className={`w-full h-9 px-3 rounded-lg text-sm transition-all border bg-white dark:bg-dark-surface-2 text-gray-900 dark:text-slate-100 placeholder:text-gray-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/40 focus:border-primary-500 ${error ? 'border-red-300 dark:border-red-500/60' : 'border-gray-250 dark:border-slate-600 hover:border-gray-350 dark:hover:border-slate-500'} ${className}`} {...props} />
-      {error && <p className="text-[11px] text-red-600 dark:text-red-400">{error}</p>}
-      {helper && !error && <p className="text-[11px] text-gray-400 dark:text-slate-400">{helper}</p>}
+      {label && <label htmlFor={elId} className="block text-[13px] font-medium text-foreground">{label}</label>}
+      <div className="relative">
+        <input 
+          id={elId} 
+          className={`w-full h-10 px-3 text-[14px] rounded-xl transition-all duration-200 border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring shadow-sm ${error ? 'border-destructive focus:ring-destructive' : 'border-border hover:border-muted-foreground/40'} ${className}`} 
+          {...props} 
+        />
+      </div>
+      <AnimatePresence>
+        {error && (
+          <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} className="text-[12px] text-destructive">{error}</motion.p>
+        )}
+      </AnimatePresence>
+      {helper && !error && <p className="text-[12px] text-muted-foreground">{helper}</p>}
     </div>
   );
 }
@@ -64,8 +88,8 @@ export function Select({ label, options, className = '', id, ...props }: SelectP
   const elId = id || label?.toLowerCase().replace(/\s+/g, '-');
   return (
     <div className="w-full space-y-1.5">
-      {label && <label htmlFor={elId} className="block text-[13px] font-medium text-gray-700 dark:text-slate-300">{label}</label>}
-      <select id={elId} className={`w-full h-9 px-3 rounded-lg text-sm border bg-white dark:bg-dark-surface-2 text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-500/40 focus:border-primary-500 border-gray-250 dark:border-slate-600 ${className}`} {...props}>
+      {label && <label htmlFor={elId} className="block text-[13px] font-medium text-foreground">{label}</label>}
+      <select id={elId} className={`w-full h-10 px-3 text-[14px] rounded-xl transition-all duration-200 border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring shadow-sm border-border hover:border-muted-foreground/40 ${className}`} {...props}>
         {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
       </select>
     </div>
@@ -82,43 +106,51 @@ export function Textarea({ label, error, className = '', id, ...props }: Textare
   const elId = id || label?.toLowerCase().replace(/\s+/g, '-');
   return (
     <div className="w-full space-y-1.5">
-      {label && <label htmlFor={elId} className="block text-[13px] font-medium text-gray-700 dark:text-slate-300">{label}</label>}
-      <textarea id={elId} className={`w-full px-3 py-2 rounded-lg text-sm border bg-white dark:bg-dark-surface-2 text-gray-900 dark:text-slate-100 placeholder:text-gray-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/40 focus:border-primary-500 ${error ? 'border-red-300 dark:border-red-500/60' : 'border-gray-250 dark:border-slate-600'} ${className}`} {...props} />
-      {error && <p className="text-[11px] text-red-600 dark:text-red-400">{error}</p>}
+      {label && <label htmlFor={elId} className="block text-[13px] font-medium text-foreground">{label}</label>}
+      <textarea id={elId} className={`w-full px-3 py-2 text-[14px] rounded-xl transition-all duration-200 border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring shadow-sm ${error ? 'border-destructive focus:ring-destructive' : 'border-border hover:border-muted-foreground/40'} ${className}`} {...props} />
+      <AnimatePresence>
+        {error && (
+          <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} className="text-[12px] text-destructive">{error}</motion.p>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
 
 /* ================================================================
-   CARD — Subtle lift + refined borders for dark
+   CARD — Glass Panel with Hover
    ================================================================ */
-interface CardProps { children: ReactNode; className?: string; padding?: boolean }
-export function Card({ children, className = '', padding = true }: CardProps) {
+interface CardProps { children: ReactNode; className?: string; padding?: boolean; interactive?: boolean }
+export function Card({ children, className = '', padding = true, interactive = false }: CardProps) {
   return (
-    <div className={`bg-white dark:bg-dark-surface-1 rounded-xl border border-gray-150 dark:border-dark-surface-3/60 shadow-[0_1px_3px_rgba(0,0,0,0.04)] dark:shadow-none ${padding ? 'p-5' : ''} ${className}`}>
+    <motion.div 
+      whileHover={interactive ? { y: -2, scale: 1.002 } : {}}
+      transition={springConfig}
+      className={`glass-panel rounded-2xl ${padding ? 'p-6' : ''} ${className}`}
+    >
       {children}
-    </div>
+    </motion.div>
   );
 }
 
 /* ================================================================
-   BADGE — Better contrast in both themes
+   BADGE — Smooth rounded borders
    ================================================================ */
 interface BadgeProps { variant?: 'default' | 'success' | 'warning' | 'danger' | 'info' | 'purple'; children: ReactNode; className?: string }
 export function Badge({ variant = 'default', children, className = '' }: BadgeProps) {
   const v: Record<string, string> = {
-    default:   'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-300',
-    success:   'bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 ring-1 ring-emerald-500/15 dark:ring-emerald-500/20',
-    warning:   'bg-amber-50 dark:bg-amber-500/15 text-amber-700 dark:text-amber-400 ring-1 ring-amber-500/15 dark:ring-amber-500/20',
-    danger:    'bg-red-50 dark:bg-red-500/15 text-red-700 dark:text-red-400 ring-1 ring-red-500/15 dark:ring-red-500/20',
-    info:      'bg-blue-50 dark:bg-blue-500/15 text-blue-700 dark:text-blue-400 ring-1 ring-blue-500/15 dark:ring-blue-500/20',
-    purple:    'bg-violet-50 dark:bg-violet-500/15 text-violet-700 dark:text-violet-400 ring-1 ring-violet-500/15 dark:ring-violet-500/20',
+    default:   'bg-muted text-muted-foreground border-border',
+    success:   'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20',
+    warning:   'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20',
+    danger:    'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20',
+    info:      'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20',
+    purple:    'bg-violet-500/10 text-violet-600 dark:text-violet-400 border-violet-500/20',
   };
-  return <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold tracking-wide ${v[variant]} ${className}`}>{children}</span>;
+  return <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[12px] font-medium border ${v[variant]} ${className}`}>{children}</span>;
 }
 
 /* ================================================================
-   MODAL — Refined backdrop + cleaner card
+   MODAL — Framer Motion Enter/Exit
    ================================================================ */
 interface ModalProps { open: boolean; onClose: () => void; title: string; children: ReactNode; size?: 'sm' | 'md' | 'lg' }
 export function Modal({ open, onClose, title, children, size = 'md' }: ModalProps) {
@@ -129,19 +161,35 @@ export function Modal({ open, onClose, title, children, size = 'md' }: ModalProp
     document.addEventListener('keydown', h);
     return () => document.removeEventListener('keydown', h);
   }, [open, onClose]);
-  if (!open) return null;
+  
   const w: Record<string, string> = { sm: 'max-w-md', md: 'max-w-lg', lg: 'max-w-2xl' };
+  
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="fixed inset-0 bg-gray-900/20 dark:bg-black/60 backdrop-blur-[2px]" onClick={onClose} />
-      <div ref={ref} className={`relative bg-white dark:bg-dark-surface-1 rounded-2xl shadow-xl dark:shadow-2xl dark:shadow-black/40 border border-gray-200/80 dark:border-dark-surface-3 ${w[size]} w-full animate-scaleIn max-h-[85vh] flex flex-col`}>
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-dark-surface-3 shrink-0">
-          <h3 className="text-base font-semibold text-gray-900 dark:text-slate-100">{title}</h3>
-          <button onClick={onClose} className="p-1.5 -mr-1.5 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-slate-300 hover:bg-gray-100 dark:hover:bg-dark-surface-3 transition-colors"><X className="w-4 h-4" /></button>
+    <AnimatePresence>
+      {open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <motion.div 
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}
+            className="fixed inset-0 bg-background/80 backdrop-blur-sm" 
+            onClick={onClose} 
+          />
+          <motion.div 
+            ref={ref} 
+            initial={{ opacity: 0, scale: 0.95, y: 10 }} 
+            animate={{ opacity: 1, scale: 1, y: 0 }} 
+            exit={{ opacity: 0, scale: 0.95, y: 10 }}
+            transition={springConfig}
+            className={`relative glass-panel rounded-2xl ${w[size]} w-full max-h-[85vh] flex flex-col shadow-premium overflow-hidden`}
+          >
+            <div className="flex items-center justify-between px-6 py-4 border-b border-border shrink-0 bg-card/50">
+              <h3 className="text-[16px] font-medium text-foreground tracking-tight">{title}</h3>
+              <button onClick={onClose} className="p-1.5 -mr-1.5 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"><X className="w-4 h-4" /></button>
+            </div>
+            <div className="p-6 overflow-y-auto">{children}</div>
+          </motion.div>
         </div>
-        <div className="p-6 overflow-y-auto">{children}</div>
-      </div>
-    </div>
+      )}
+    </AnimatePresence>
   );
 }
 
@@ -153,15 +201,18 @@ interface StatCardProps {
   change?: string; changeType?: 'positive' | 'negative' | 'neutral';
   icon: ReactNode; iconBg?: string;
 }
-export function StatCard({ title, value, change, changeType = 'neutral', icon, iconBg = 'bg-primary-50 dark:bg-primary-500/10 text-primary-600 dark:text-primary-400' }: StatCardProps) {
+export function StatCard({ title, value, change, changeType = 'neutral', icon, iconBg = 'text-primary bg-primary/10' }: StatCardProps) {
   return (
-    <Card className="card-lift">
-      <div className="flex items-start justify-between gap-3">
+    <Card interactive={true} className="overflow-hidden relative group">
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      <div className="flex items-start justify-between gap-3 relative z-10">
         <div className="min-w-0">
-          <p className="text-xs font-medium text-gray-500 dark:text-slate-300 truncate">{title}</p>
-          <p className="text-[22px] font-bold text-gray-900 dark:text-white mt-0.5 tracking-tight">{value}</p>
-          {change && <p className={`text-[11px] mt-1.5 font-medium ${changeType === 'positive' ? 'text-emerald-600 dark:text-emerald-400' : changeType === 'negative' ? 'text-red-600 dark:text-red-400' : 'text-gray-400 dark:text-slate-400'}`}>
-            {changeType === 'positive' ? '↑' : changeType === 'negative' ? '↓' : '→'} {change}
+          <p className="text-[13px] font-medium text-muted-foreground truncate">{title}</p>
+          <motion.p initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1, ...springConfig }} className="text-[28px] font-semibold text-foreground mt-1 tracking-tight">
+            {value}
+          </motion.p>
+          {change && <p className={`text-[12px] mt-1 font-medium flex items-center gap-1 ${changeType === 'positive' ? 'text-emerald-500' : changeType === 'negative' ? 'text-red-500' : 'text-muted-foreground'}`}>
+            {changeType === 'positive' ? <span className="text-[10px]">▲</span> : changeType === 'negative' ? <span className="text-[10px]">▼</span> : <span className="text-[10px]">▶</span>} {change}
           </p>}
         </div>
         <div className={`p-2.5 rounded-xl shrink-0 ${iconBg}`}>{icon}</div>
@@ -171,32 +222,38 @@ export function StatCard({ title, value, change, changeType = 'neutral', icon, i
 }
 
 /* ================================================================
-   TABLE
+   TABLE — Smooth rows
    ================================================================ */
 interface Column<T> { key: string; header: string; render?: (item: T) => ReactNode; className?: string }
 interface TableProps<T> { columns: Column<T>[]; data: T[]; keyExtractor: (item: T) => string; emptyMessage?: string }
-export function Table<T>({ columns, data, keyExtractor, emptyMessage = 'No data' }: TableProps<T>) {
+export function Table<T>({ columns, data, keyExtractor, emptyMessage = 'No data available' }: TableProps<T>) {
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full">
+    <div className="overflow-x-auto rounded-xl border border-border glass-panel p-0">
+      <table className="w-full text-left border-collapse">
         <thead>
-          <tr className="border-b border-gray-150 dark:border-dark-surface-3">
+          <tr className="border-b border-border bg-muted/40">
             {columns.map(c => (
-              <th key={c.key} className={`text-left py-3 px-4 text-[11px] font-semibold text-gray-500 dark:text-slate-300 uppercase tracking-wider whitespace-nowrap ${c.className || ''}`}>{c.header}</th>
+              <th key={c.key} className={`py-3.5 px-4 text-[12px] font-medium text-muted-foreground ${c.className || ''}`}>{c.header}</th>
             ))}
           </tr>
         </thead>
-        <tbody className="table-stripe">
+        <tbody>
           {data.length === 0
-            ? <tr><td colSpan={columns.length} className="text-center py-16 text-gray-400 dark:text-slate-400 text-sm">{emptyMessage}</td></tr>
-            : data.map(item => (
-              <tr key={keyExtractor(item)} className="border-b border-gray-100 dark:border-dark-surface-3/40 hover:bg-primary-50/30 dark:hover:bg-primary-900/10 transition-colors">
+            ? <tr><td colSpan={columns.length} className="text-center py-16 text-muted-foreground text-[14px]">{emptyMessage}</td></tr>
+            : data.map((item, index) => (
+              <motion.tr 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.03, ...transitionConfig }}
+                key={keyExtractor(item)} 
+                className={`transition-colors hover:bg-muted/40 ${index !== data.length - 1 ? 'border-b border-border/50' : ''}`}
+              >
                 {columns.map(c => (
-                  <td key={c.key} className={`py-3 px-4 text-sm text-gray-700 dark:text-slate-300 whitespace-nowrap ${c.className || ''}`}>
+                  <td key={c.key} className={`py-3.5 px-4 text-[14px] text-foreground whitespace-nowrap ${c.className || ''}`}>
                     {c.render ? c.render(item) : String((item as Record<string, unknown>)[c.key] ?? '')}
                   </td>
                 ))}
-              </tr>
+              </motion.tr>
             ))
           }
         </tbody>
@@ -206,31 +263,35 @@ export function Table<T>({ columns, data, keyExtractor, emptyMessage = 'No data'
 }
 
 /* ================================================================
-   TOAST CONTAINER
+   TOAST CONTAINER — Framer Motion Slide In
    ================================================================ */
 export function ToastContainer() {
   const { toasts, removeToast } = useAuth();
   const icons: Record<Toast['type'], ReactNode> = {
-    success: <CheckCircle className="w-4 h-4 text-emerald-500" />,
-    error: <AlertCircle className="w-4 h-4 text-red-500" />,
-    info: <Info className="w-4 h-4 text-blue-500" />,
-    warning: <AlertTriangle className="w-4 h-4 text-amber-500" />,
-  };
-  const bg: Record<Toast['type'], string> = {
-    success: 'bg-white dark:bg-dark-surface-1 border-emerald-200 dark:border-emerald-800/60',
-    error: 'bg-white dark:bg-dark-surface-1 border-red-200 dark:border-red-800/60',
-    info: 'bg-white dark:bg-dark-surface-1 border-blue-200 dark:border-blue-800/60',
-    warning: 'bg-white dark:bg-dark-surface-1 border-amber-200 dark:border-amber-800/60',
+    success: <CheckCircle className="w-5 h-5 text-emerald-500" />,
+    error: <AlertCircle className="w-5 h-5 text-red-500" />,
+    info: <Info className="w-5 h-5 text-blue-500" />,
+    warning: <AlertTriangle className="w-5 h-5 text-amber-500" />,
   };
   return (
-    <div className="fixed top-4 right-4 z-[100] flex flex-col gap-2.5 max-w-sm">
-      {toasts.map(t => (
-        <div key={t.id} className={`flex items-center gap-3 px-4 py-3 rounded-xl border shadow-lg dark:shadow-xl dark:shadow-black/30 toast-enter ${bg[t.type]}`}>
-          {icons[t.type]}
-          <p className="text-sm font-medium text-gray-800 dark:text-slate-200 flex-1">{t.message}</p>
-          <button onClick={() => removeToast(t.id)} className="text-gray-300 dark:text-slate-400 hover:text-gray-500 dark:hover:text-slate-400 transition-colors"><X className="w-3.5 h-3.5" /></button>
-        </div>
-      ))}
+    <div className="fixed bottom-6 right-6 z-[100] flex flex-col gap-3 max-w-sm w-full pointer-events-none">
+      <AnimatePresence>
+        {toasts.map(t => (
+          <motion.div 
+            key={t.id} 
+            layout
+            initial={{ opacity: 0, y: 50, scale: 0.9 }} 
+            animate={{ opacity: 1, y: 0, scale: 1 }} 
+            exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
+            transition={springConfig}
+            className="flex items-center gap-3 px-4 py-3 border border-border glass-panel rounded-xl shadow-premium pointer-events-auto"
+          >
+            <div className="shrink-0">{icons[t.type]}</div>
+            <p className="text-[14px] font-medium text-foreground flex-1">{t.message}</p>
+            <button onClick={() => removeToast(t.id)} className="text-muted-foreground hover:text-foreground transition-colors shrink-0"><X className="w-4 h-4" /></button>
+          </motion.div>
+        ))}
+      </AnimatePresence>
     </div>
   );
 }
@@ -241,12 +302,12 @@ export function ToastContainer() {
 interface EmptyStateProps { icon: ReactNode; title: string; description: string; action?: ReactNode }
 export function EmptyState({ icon, title, description, action }: EmptyStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center py-16 text-center">
-      <div className="p-4 bg-surface-2 dark:bg-dark-surface-2 rounded-2xl mb-4 text-gray-300 dark:text-slate-400">{icon}</div>
-      <h3 className="text-base font-semibold text-gray-900 dark:text-slate-100 mb-1">{title}</h3>
-      <p className="text-sm text-gray-500 dark:text-slate-300 max-w-xs mb-5">{description}</p>
+    <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={transitionConfig} className="flex flex-col items-center justify-center py-20 text-center px-4">
+      <div className="p-4 bg-muted/50 rounded-2xl mb-5 text-muted-foreground shadow-sm">{icon}</div>
+      <h3 className="text-[18px] font-medium text-foreground mb-1 tracking-tight">{title}</h3>
+      <p className="text-[14px] text-muted-foreground max-w-sm mb-6 leading-relaxed">{description}</p>
       {action}
-    </div>
+    </motion.div>
   );
 }
 
@@ -254,10 +315,14 @@ export function EmptyState({ icon, title, description, action }: EmptyStateProps
    LOADING SPINNER
    ================================================================ */
 export function LoadingSpinner({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
-  const s = { sm: 'w-4 h-4', md: 'w-8 h-8', lg: 'w-12 h-12' };
+  const s = { sm: 'w-5 h-5 border-2', md: 'w-8 h-8 border-[3px]', lg: 'w-12 h-12 border-4' };
   return (
-    <div className="flex items-center justify-center py-16">
-      <div className={`${s[size]} border-[3px] border-gray-200 dark:border-dark-surface-3 border-t-primary-500 dark:border-t-primary-400 rounded-full animate-spin`} />
+    <div className="flex items-center justify-center py-12 w-full">
+      <motion.div 
+        animate={{ rotate: 360 }}
+        transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+        className={`${s[size]} border-muted border-t-primary rounded-full`} 
+      />
     </div>
   );
 }
@@ -268,13 +333,13 @@ export function LoadingSpinner({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
 interface PageHeaderProps { title: string; description?: string; action?: ReactNode }
 export function PageHeader({ title, description, action }: PageHeaderProps) {
   return (
-    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+    <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={transitionConfig} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
       <div>
-        <h1 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight">{title}</h1>
-        {description && <p className="text-[13px] text-gray-500 dark:text-slate-300 mt-0.5">{description}</p>}
+        <h1 className="text-[28px] font-semibold text-foreground tracking-tight">{title}</h1>
+        {description && <p className="text-[15px] text-muted-foreground mt-1">{description}</p>}
       </div>
-      {action && <div className="flex items-center gap-2 flex-shrink-0">{action}</div>}
-    </div>
+      {action && <div className="flex items-center gap-3 flex-shrink-0">{action}</div>}
+    </motion.div>
   );
 }
 
@@ -282,36 +347,45 @@ export function PageHeader({ title, description, action }: PageHeaderProps) {
    SEARCH BAR
    ================================================================ */
 interface SearchBarProps { value: string; onChange: (v: string) => void; placeholder?: string }
-export function SearchBar({ value, onChange, placeholder = 'Search…' }: SearchBarProps) {
+export function SearchBar({ value, onChange, placeholder = 'Search...' }: SearchBarProps) {
   return (
-    <div className="relative">
-      <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-slate-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+    <div className="relative group">
+      <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
       <input type="text" value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder}
-        className="w-full h-9 pl-10 pr-4 rounded-lg text-sm border border-gray-250 dark:border-slate-600 bg-white dark:bg-dark-surface-2 text-gray-900 dark:text-slate-100 placeholder:text-gray-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/40 focus:border-primary-500 transition-all" />
+        className="w-full h-10 pl-10 pr-4 text-[14px] rounded-xl border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring transition-all shadow-sm hover:border-muted-foreground/40" />
     </div>
   );
 }
 
 /* ================================================================
-   TABS
+   TABS — Framer Motion active indicator
    ================================================================ */
 interface TabsProps { tabs: { key: string; label: string; count?: number }[]; active: string; onChange: (key: string) => void }
 export function Tabs({ tabs, active, onChange }: TabsProps) {
   return (
-    <div className="flex gap-0.5 bg-surface-2 dark:bg-dark-surface-2 p-1 rounded-lg">
+    <div className="flex gap-1 border-b border-border mb-6">
       {tabs.map(t => (
         <button key={t.key} onClick={() => onChange(t.key)}
-          className={`px-3.5 py-1.5 text-[13px] font-medium rounded-md transition-all whitespace-nowrap ${
+          className={`relative px-4 py-2.5 text-[14px] font-medium transition-colors whitespace-nowrap ${
             active === t.key
-              ? 'bg-white dark:bg-dark-surface-1 text-gray-900 dark:text-white shadow-sm dark:shadow-none'
-              : 'text-gray-500 dark:text-slate-300 hover:text-gray-700 dark:hover:text-slate-300'}`}>
-          {t.label}
-          {t.count !== undefined && (
-            <span className={`ml-1.5 px-1.5 py-px rounded text-[10px] font-bold ${
-              active === t.key
-                ? 'bg-primary-100 dark:bg-primary-500/20 text-primary-700 dark:text-primary-400'
-                : 'bg-gray-200 dark:bg-slate-600 text-gray-500 dark:text-slate-300'
-            }`}>{t.count}</span>
+              ? 'text-primary'
+              : 'text-muted-foreground hover:text-foreground'}`}>
+          <div className="flex items-center gap-2">
+            {t.label}
+            {t.count !== undefined && (
+              <span className={`px-1.5 py-0.5 text-[11px] rounded-full transition-colors ${
+                active === t.key
+                  ? 'bg-primary/10 text-primary'
+                  : 'bg-muted text-muted-foreground'
+              }`}>{t.count}</span>
+            )}
+          </div>
+          {active === t.key && (
+            <motion.div 
+              layoutId="activeTabIndicator" 
+              className="absolute bottom-[-1px] left-0 right-0 h-0.5 bg-primary rounded-t-full" 
+              transition={springConfig}
+            />
           )}
         </button>
       ))}
@@ -329,9 +403,9 @@ interface ConfirmDialogProps {
 export function ConfirmDialog({ open, onClose, onConfirm, title, message, confirmLabel = 'Confirm', variant = 'danger' }: ConfirmDialogProps) {
   return (
     <Modal open={open} onClose={onClose} title={title} size="sm">
-      <p className="text-sm text-gray-600 dark:text-slate-300 mb-6 leading-relaxed">{message}</p>
+      <p className="text-[14px] text-muted-foreground mb-8 leading-relaxed">{message}</p>
       <div className="flex gap-3 justify-end">
-        <Button variant="outline" onClick={onClose}>Cancel</Button>
+        <Button variant="ghost" onClick={onClose}>Cancel</Button>
         <Button variant={variant === 'danger' ? 'danger' : 'primary'} onClick={() => { onConfirm(); onClose(); }}>{confirmLabel}</Button>
       </div>
     </Modal>

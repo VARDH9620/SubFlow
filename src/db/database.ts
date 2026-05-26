@@ -40,138 +40,6 @@ function hashPassword(pw: string): string {
 }
 
 // ====================================================================
-// SEED DATA
-// ====================================================================
-
-const seedServices: Service[] = [
-  { id: 'svc-001', name: 'Cloud Storage Pro', description: 'Enterprise-grade cloud storage with 99.9% uptime SLA', category: 'Cloud', icon: 'Cloud', status: 'active', created_at: '2024-01-15T10:00:00Z', updated_at: '2024-01-15T10:00:00Z' },
-  { id: 'svc-002', name: 'DevOps Pipeline', description: 'CI/CD pipeline with automated testing and deployment', category: 'Developer Tools', icon: 'GitBranch', status: 'active', created_at: '2024-01-20T10:00:00Z', updated_at: '2024-01-20T10:00:00Z' },
-  { id: 'svc-003', name: 'Analytics Suite', description: 'Real-time analytics with custom dashboards and reports', category: 'Analytics', icon: 'BarChart3', status: 'active', created_at: '2024-02-01T10:00:00Z', updated_at: '2024-02-01T10:00:00Z' },
-  { id: 'svc-004', name: 'Security Shield', description: 'End-to-end security monitoring and threat detection', category: 'Security', icon: 'Shield', status: 'active', created_at: '2024-02-10T10:00:00Z', updated_at: '2024-02-10T10:00:00Z' },
-  { id: 'svc-005', name: 'Team Collaboration', description: 'Real-time messaging, video calls, and project management', category: 'Communication', icon: 'Users', status: 'active', created_at: '2024-03-01T10:00:00Z', updated_at: '2024-03-01T10:00:00Z' },
-  { id: 'svc-006', name: 'Email Marketing', description: 'Automated email campaigns with A/B testing and analytics', category: 'Marketing', icon: 'Mail', status: 'active', created_at: '2024-03-15T10:00:00Z', updated_at: '2024-03-15T10:00:00Z' },
-];
-
-const seedPlans: Plan[] = [
-  { id: 'plan-001', service_id: 'svc-001', name: 'Starter', description: '50GB storage, basic features', price: 9.99, billing_cycle: 'monthly', features: ['50GB Storage', 'Basic Sharing', 'Email Support'], trial_days: 14, status: 'active', max_users: 1, created_at: '2024-01-15T10:00:00Z', updated_at: '2024-01-15T10:00:00Z' },
-  { id: 'plan-002', service_id: 'svc-001', name: 'Professional', description: '500GB storage, advanced features', price: 24.99, billing_cycle: 'monthly', features: ['500GB Storage', 'Advanced Sharing', 'Priority Support', 'API Access'], trial_days: 14, status: 'active', max_users: 5, created_at: '2024-01-15T10:00:00Z', updated_at: '2024-01-15T10:00:00Z' },
-  { id: 'plan-003', service_id: 'svc-001', name: 'Enterprise', description: 'Unlimited storage, all features', price: 49.99, billing_cycle: 'monthly', features: ['Unlimited Storage', 'Advanced Sharing', '24/7 Support', 'API Access', 'Custom Domain', 'SSO'], trial_days: 30, status: 'active', max_users: 50, created_at: '2024-01-15T10:00:00Z', updated_at: '2024-01-15T10:00:00Z' },
-  { id: 'plan-004', service_id: 'svc-002', name: 'Basic', description: '5 pipelines, basic runners', price: 19.99, billing_cycle: 'monthly', features: ['5 Pipelines', 'Basic Runners', 'GitHub Integration'], trial_days: 7, status: 'active', max_users: 3, created_at: '2024-01-20T10:00:00Z', updated_at: '2024-01-20T10:00:00Z' },
-  { id: 'plan-005', service_id: 'svc-002', name: 'Pro', description: 'Unlimited pipelines, advanced runners', price: 49.99, billing_cycle: 'monthly', features: ['Unlimited Pipelines', 'Advanced Runners', 'All Integrations', 'Parallel Execution'], trial_days: 14, status: 'active', max_users: 15, created_at: '2024-01-20T10:00:00Z', updated_at: '2024-01-20T10:00:00Z' },
-  { id: 'plan-006', service_id: 'svc-003', name: 'Basic', description: 'Basic analytics and 3 dashboards', price: 14.99, billing_cycle: 'monthly', features: ['3 Dashboards', 'Basic Reports', '7-day History'], trial_days: 14, status: 'active', max_users: 2, created_at: '2024-02-01T10:00:00Z', updated_at: '2024-02-01T10:00:00Z' },
-  { id: 'plan-007', service_id: 'svc-003', name: 'Business', description: 'Full analytics with custom reports', price: 39.99, billing_cycle: 'monthly', features: ['Unlimited Dashboards', 'Custom Reports', '1-year History', 'Real-time Data'], trial_days: 14, status: 'active', max_users: 10, created_at: '2024-02-01T10:00:00Z', updated_at: '2024-02-01T10:00:00Z' },
-  { id: 'plan-008', service_id: 'svc-004', name: 'Standard', description: 'Basic threat detection', price: 29.99, billing_cycle: 'monthly', features: ['Threat Detection', 'Weekly Reports', 'Email Alerts'], trial_days: 14, status: 'active', max_users: 5, created_at: '2024-02-10T10:00:00Z', updated_at: '2024-02-10T10:00:00Z' },
-  { id: 'plan-009', service_id: 'svc-005', name: 'Team', description: 'Up to 25 team members', price: 12.99, billing_cycle: 'monthly', features: ['25 Members', 'Group Chat', 'Video Calls (10)'], trial_days: 14, status: 'active', max_users: 25, created_at: '2024-03-01T10:00:00Z', updated_at: '2024-03-01T10:00:00Z' },
-  { id: 'plan-010', service_id: 'svc-005', name: 'Business', description: 'Unlimited team members', price: 29.99, billing_cycle: 'monthly', features: ['Unlimited Members', 'Group Chat', 'Video Calls (100)', 'Admin Controls', 'SSO'], trial_days: 14, status: 'active', max_users: 999, created_at: '2024-03-01T10:00:00Z', updated_at: '2024-03-01T10:00:00Z' },
-  { id: 'plan-011', service_id: 'svc-006', name: 'Starter', description: 'Up to 1,000 contacts', price: 14.99, billing_cycle: 'monthly', features: ['1,000 Contacts', 'Basic Automation', '3 Templates'], trial_days: 14, status: 'active', max_users: 1, created_at: '2024-03-15T10:00:00Z', updated_at: '2024-03-15T10:00:00Z' },
-  { id: 'plan-012', service_id: 'svc-006', name: 'Growth', description: 'Up to 50,000 contacts', price: 49.99, billing_cycle: 'monthly', features: ['50,000 Contacts', 'Advanced Automation', 'Unlimited Templates', 'A/B Testing'], trial_days: 14, status: 'active', max_users: 5, created_at: '2024-03-15T10:00:00Z', updated_at: '2024-03-15T10:00:00Z' },
-];
-
-function generateSeedSubscriptions(users: User[]): Subscription[] {
-  const subs: Subscription[] = [];
-  const now = new Date();
-  const statuses: SubscriptionStatus[] = ['active', 'active', 'active', 'active', 'paused', 'cancelled'];
-
-  const planIds = ['plan-001', 'plan-002', 'plan-004', 'plan-006', 'plan-007', 'plan-009', 'plan-011'];
-  const regularUsers = users.filter(u => u.role === 'user');
-
-  regularUsers.forEach((user, idx) => {
-    const planIdsForUser = planIds.slice(0, 2 + (idx % 3));
-    planIdsForUser.forEach((planId, pIdx) => {
-      const startDate = new Date(now);
-      startDate.setMonth(startDate.getMonth() - (3 + pIdx));
-      const endDate = new Date(startDate);
-      endDate.setMonth(endDate.getMonth() + 1);
-
-      subs.push({
-        id: uid(),
-        user_id: user.id,
-        plan_id: planId,
-        status: statuses[(idx + pIdx) % statuses.length],
-        start_date: startDate.toISOString().split('T')[0],
-        end_date: endDate.toISOString().split('T')[0],
-        trial_end: new Date(startDate.getTime() + 14 * 86400000).toISOString().split('T')[0],
-        auto_renew: (idx + pIdx) % 3 !== 0,
-        created_at: startDate.toISOString(),
-        updated_at: now.toISOString(),
-      });
-    });
-  });
-  return subs;
-}
-
-function generateSeedInvoices(subscriptions: Subscription[]): Invoice[] {
-  const invoices: Invoice[] = [];
-  const planPrices: Record<string, number> = {};
-  const plans = getTable<Plan>('plans');
-  plans.forEach(p => { planPrices[p.id] = p.price; });
-
-  subscriptions.forEach(sub => {
-    const price = planPrices[sub.plan_id] || 9.99;
-    for (let m = 0; m < 3; m++) {
-      const date = new Date(sub.created_at);
-      date.setMonth(date.getMonth() + m);
-      const amount = price;
-      const tax = +(amount * 0.18).toFixed(2);
-      const total = +(amount + tax).toFixed(2);
-
-      invoices.push({
-        id: uid(),
-        subscription_id: sub.id,
-        user_id: sub.user_id,
-        amount: +amount.toFixed(2),
-        tax,
-        discount: 0,
-        total,
-        status: m < 2 ? 'paid' : 'pending',
-        due_date: date.toISOString().split('T')[0],
-        paid_at: m < 2 ? date.toISOString() : null,
-        invoice_number: `INV-${date.getFullYear()}${String(date.getMonth() + 1).padStart(2, '0')}-${uid().slice(0, 8).toUpperCase()}`,
-        created_at: date.toISOString(),
-      });
-    }
-  });
-  return invoices;
-}
-
-function generateSeedTickets(users: User[]): SupportTicket[] {
-  const subjects = [
-    'Cannot access my account after password reset',
-    'Billing issue — charged twice this month',
-    'Feature request: Dark mode support',
-    'API rate limiting too aggressive',
-    'Storage quota not updating',
-    'Integration with Slack not working',
-  ];
-  const descriptions = [
-    'I have been trying to reset my password for the past 2 days but still cannot log in. Please help.',
-    'I noticed I was charged $49.99 twice for the same subscription this month. Please investigate.',
-    'It would be great if the dashboard had a dark mode option for late-night work sessions.',
-    'Our team is hitting the API rate limit very quickly even though we are on the Pro plan.',
-    'I deleted several large files but my storage usage still shows the same amount.',
-    'The Slack integration stopped working after the last update. Webhooks are not firing.',
-  ];
-  const categories = ['Account', 'Billing', 'Feature Request', 'Technical', 'Technical', 'Integration'];
-  const priorities: Array<'low' | 'medium' | 'high' | 'critical'> = ['high', 'critical', 'low', 'medium', 'medium', 'high'];
-  const statuses: TicketStatus[] = ['open', 'in_progress', 'resolved', 'open', 'in_progress', 'closed'];
-  const regularUsers = users.filter(u => u.role === 'user');
-  const admins = users.filter(u => u.role === 'admin');
-
-  return subjects.map((subj, i) => ({
-    id: uid(),
-    user_id: regularUsers[i % regularUsers.length].id,
-    subject: subj,
-    description: descriptions[i],
-    status: statuses[i],
-    priority: priorities[i],
-    category: categories[i],
-    assigned_to: statuses[i] !== 'open' ? admins[0].id : null,
-    created_at: new Date(Date.now() - (i * 3 * 86400000)).toISOString(),
-    updated_at: new Date().toISOString(),
-  }));
-}
-
-// ====================================================================
 // DATABASE INITIALIZATION
 // ====================================================================
 
@@ -193,34 +61,16 @@ export function initializeDatabase(): void {
     updated_at: '2024-01-01T10:00:00Z',
   };
 
-  // Demo users
-  const demoUsers: User[] = [
-    { id: 'user-001', email: 'john@example.com', password_hash: hashPassword('user123'), first_name: 'John', last_name: 'Doe', phone: '+1234567001', avatar_url: null, role: 'user', is_verified: true, created_at: '2024-02-01T10:00:00Z', updated_at: '2024-02-01T10:00:00Z' },
-    { id: 'user-002', email: 'jane@example.com', password_hash: hashPassword('user123'), first_name: 'Jane', last_name: 'Smith', phone: '+1234567002', avatar_url: null, role: 'user', is_verified: true, created_at: '2024-02-15T10:00:00Z', updated_at: '2024-02-15T10:00:00Z' },
-    { id: 'user-003', email: 'mike@example.com', password_hash: hashPassword('user123'), first_name: 'Mike', last_name: 'Johnson', phone: '+1234567003', avatar_url: null, role: 'user', is_verified: true, created_at: '2024-03-01T10:00:00Z', updated_at: '2024-03-01T10:00:00Z' },
-    { id: 'user-004', email: 'sarah@example.com', password_hash: hashPassword('user123'), first_name: 'Sarah', last_name: 'Williams', phone: '+1234567004', avatar_url: null, role: 'user', is_verified: true, created_at: '2024-03-15T10:00:00Z', updated_at: '2024-03-15T10:00:00Z' },
-    { id: 'user-005', email: 'david@example.com', password_hash: hashPassword('user123'), first_name: 'David', last_name: 'Brown', phone: '+1234567005', avatar_url: null, role: 'user', is_verified: true, created_at: '2024-04-01T10:00:00Z', updated_at: '2024-04-01T10:00:00Z' },
-    { id: 'user-006', email: 'emily@example.com', password_hash: hashPassword('user123'), first_name: 'Emily', last_name: 'Davis', phone: '+1234567006', avatar_url: null, role: 'user', is_verified: true, created_at: '2024-04-10T10:00:00Z', updated_at: '2024-04-10T10:00:00Z' },
-    { id: 'user-007', email: 'alex@example.com', password_hash: hashPassword('user123'), first_name: 'Alex', last_name: 'Wilson', phone: '+1234567007', avatar_url: null, role: 'user', is_verified: true, created_at: '2024-05-01T10:00:00Z', updated_at: '2024-05-01T10:00:00Z' },
-  ];
-
-  const allUsers = [adminUser, ...demoUsers];
-
-  setTable('users', allUsers);
-  setTable('services', seedServices);
-  setTable('plans', seedPlans);
-
-  const subscriptions = generateSeedSubscriptions(allUsers);
-  setTable('subscriptions', subscriptions);
-
-  const invoices = generateSeedInvoices(subscriptions);
-  setTable('invoices', invoices);
-
-  const tickets = generateSeedTickets(allUsers);
-  setTable('support_tickets', tickets);
+  setTable('users', [adminUser]);
+  setTable('services', []);
+  setTable('plans', []);
+  setTable('subscriptions', []);
+  setTable('invoices', []);
+  setTable('support_tickets', []);
   setTable('ticket_messages', []);
   setTable('notifications', []);
   setTable('audit_logs', []);
+  setTable('payment_methods', []);
 
   localStorage.setItem('subflow_initialized', 'true');
 }
