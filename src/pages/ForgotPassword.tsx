@@ -6,6 +6,8 @@ import { Button, Input } from '../components/ui';
 import { OTPVerificationPage } from '../components/ui/OTPInput';
 import { PasswordStrength } from '../components/ui/OTPInput';
 import * as db from '../db/database';
+import { motion } from 'framer-motion';
+import GlobalBackground from '../components/Background/GlobalBackground';
 
 type Step = 'email' | 'otp' | 'reset' | 'success';
 
@@ -86,38 +88,43 @@ export default function ForgotPassword() {
       {step === 'email' && (
         <div className="min-h-screen flex">
           {/* Left branding */}
-          <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-orange-500 to-red-600 relative overflow-hidden flex-col justify-center px-12">
-            <div className="absolute inset-0 bg-gradient-to-br from-orange-500 to-red-600" />
-            <div className="relative z-10">
-              <div className="flex items-center gap-2.5 mb-12">
-                <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm"><Zap className="w-5 h-5 text-white" /></div>
-                <span className="text-2xl font-bold text-white">SubFlow</span>
-              </div>
-              <h2 className="text-4xl font-bold text-white leading-tight mb-4">Forgot your<br />password?</h2>
-              <p className="text-white/80 text-lg max-w-md">Don't worry, it happens to the best of us. We'll send you a verification code to securely reset your password.</p>
-              <div className="mt-8 space-y-3">
-                {[
-                  'Enter your registered email',
-                  'Verify with a 6-digit OTP',
-                  'Set a new secure password',
-                ].map((step, i) => (
-                  <div key={i} className="flex items-center gap-3 text-white/80">
-                    <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center text-sm font-bold">{i + 1}</div>
-                    <span className="text-sm">{step}</span>
+          <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden flex-col justify-center">
+            <GlobalBackground intensity="full">
+              <div className="absolute inset-0 bg-gradient-to-br from-orange-500/90 via-red-500/85 to-rose-600/90" />
+              <div className="relative z-10 py-20 px-12">
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+                  <div className="flex items-center gap-2.5 mb-14">
+                    <div className="w-11 h-11 bg-white/15 rounded-xl flex items-center justify-center backdrop-blur-md border border-white/20"><Zap className="w-5 h-5 text-white" /></div>
+                    <span className="text-2xl font-bold text-white tracking-tight">SubFlow</span>
                   </div>
-                ))}
+                  <h2 className="text-4xl font-extrabold text-white leading-tight mb-4 tracking-tight">Forgot your<br />password?</h2>
+                  <p className="text-white/70 text-lg max-w-md leading-relaxed">Don't worry, it happens to the best of us. We'll send you a verification code to securely reset your password.</p>
+                  <div className="mt-10 space-y-3">
+                    {[
+                      'Enter your registered email',
+                      'Verify with a 6-digit OTP',
+                      'Set a new secure password',
+                    ].map((stepText, i) => (
+                      <motion.div key={i} initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 + i * 0.1 }} className="flex items-center gap-3 text-white/80">
+                        <div className="w-8 h-8 bg-white/15 rounded-full flex items-center justify-center text-sm font-bold backdrop-blur-sm border border-white/10">{i + 1}</div>
+                        <span className="text-sm font-medium">{stepText}</span>
+                      </motion.div>
+                    ))}
+                  </div>
+                </motion.div>
               </div>
-            </div>
-            <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-white/5 rounded-full" />
+              <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-white/[0.03] rounded-full border border-white/[0.05]" />
+              <div className="absolute -top-20 -left-20 w-64 h-64 bg-white/[0.03] rounded-full border border-white/[0.05]" />
+            </GlobalBackground>
           </div>
 
           {/* Right form */}
           <div className="flex-1 flex items-center justify-center px-6 py-12">
-            <div className="w-full max-w-sm">
+            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="w-full max-w-sm">
               <div className="flex items-center justify-between mb-8">
                 <Link to="/login" className="lg:hidden flex items-center gap-2">
-                  <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center"><Zap className="w-4 h-4 text-white" /></div>
-                  <span className="text-lg font-bold text-foreground">SubFlow</span>
+                  <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center shadow-md shadow-primary/20"><Zap className="w-4 h-4 text-white" /></div>
+                  <span className="text-lg font-bold text-foreground tracking-tight">SubFlow</span>
                 </Link>
                 <ThemeToggle compact />
               </div>
@@ -128,13 +135,13 @@ export default function ForgotPassword() {
                 </div>
               </div>
 
-              <h1 className="text-2xl font-bold text-foreground text-center">Forgot Password</h1>
-              <p className="mt-2 text-sm text-muted-foreground dark:text-slate-300 text-center">
+              <h1 className="text-2xl font-bold text-foreground text-center tracking-tight">Forgot Password</h1>
+              <p className="mt-2 text-sm text-muted-foreground text-center">
                 Enter your email and we'll send you a verification code
               </p>
 
               {emailError && (
-                <div className="mt-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 text-sm rounded-lg">{emailError}</div>
+                <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="mt-4 p-3.5 bg-red-50/80 dark:bg-red-900/15 border border-red-200/50 dark:border-red-800/30 text-red-700 dark:text-red-400 text-sm rounded-xl backdrop-blur-sm">{emailError}</motion.div>
               )}
 
               <form onSubmit={handleEmailSubmit} className="mt-6 space-y-4">
@@ -154,7 +161,7 @@ export default function ForgotPassword() {
               <Link to="/login" className="flex items-center justify-center gap-2 mt-6 text-sm text-muted-foreground dark:text-slate-300 hover:text-muted-foreground dark:hover:text-slate-200">
                 <ArrowLeft className="w-4 h-4" /> Back to Sign In
               </Link>
-            </div>
+            </motion.div>
           </div>
         </div>
       )}

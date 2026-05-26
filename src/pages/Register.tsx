@@ -6,6 +6,8 @@ import { ThemeToggle } from '../components/ui/ThemeToggle';
 import { Button, Input } from '../components/ui';
 import { OTPInput, PasswordStrength } from '../components/ui/OTPInput';
 import * as db from '../db/database';
+import { motion } from 'framer-motion';
+import GlobalBackground from '../components/Background/GlobalBackground';
 
 type Step = 'form' | 'otp' | 'success';
 
@@ -107,37 +109,43 @@ export default function Register() {
 
   return (
     <div className="min-h-screen flex">
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-emerald-500 to-primary-600 relative overflow-hidden flex-col justify-center px-12">
-        <div className="relative z-10">
-          <div className="flex items-center gap-2.5 mb-12">
-            <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm"><Zap className="w-5 h-5 text-white" /></div>
-            <span className="text-2xl font-bold text-white">SubFlow</span>
-          </div>
-          <h2 className="text-4xl font-bold text-white leading-tight mb-4">Start managing your<br />subscriptions today</h2>
-          <p className="text-white/80 text-lg max-w-md">Join thousands of businesses using SubFlow to streamline their subscription management.</p>
-
-          <div className="mt-12 space-y-4 max-w-sm">
-            {[
-              { icon: <Shield className="w-5 h-5" />, text: 'Email verification required' },
-              { icon: <Mail className="w-5 h-5" />, text: '6-digit OTP security code' },
-              { icon: <CheckCircle className="w-5 h-5" />, text: 'Instant account activation' },
-            ].map((item, i) => (
-              <div key={i} className="flex items-center gap-3 text-white/80">
-                <div className="p-2 bg-white/10 rounded-lg">{item.icon}</div>
-                <span className="text-sm">{item.text}</span>
+      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden flex-col justify-center">
+        <GlobalBackground intensity="full">
+          <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/90 via-primary/85 to-indigo-600/90" />
+          <div className="relative z-10 py-20 px-12">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+              <div className="flex items-center gap-2.5 mb-14">
+                <div className="w-11 h-11 bg-white/15 rounded-xl flex items-center justify-center backdrop-blur-md border border-white/20"><Zap className="w-5 h-5 text-white" /></div>
+                <span className="text-2xl font-bold text-white tracking-tight">SubFlow</span>
               </div>
-            ))}
+              <h2 className="text-4xl font-extrabold text-white leading-tight mb-4 tracking-tight">Start managing your<br />subscriptions today</h2>
+              <p className="text-white/70 text-lg max-w-md leading-relaxed">Join thousands of businesses using SubFlow to streamline their subscription management.</p>
+
+              <div className="mt-14 space-y-4 max-w-sm">
+                {[
+                  { icon: <Shield className="w-5 h-5" />, text: 'Email verification required' },
+                  { icon: <Mail className="w-5 h-5" />, text: '6-digit OTP security code' },
+                  { icon: <CheckCircle className="w-5 h-5" />, text: 'Instant account activation' },
+                ].map((item, i) => (
+                  <motion.div key={i} initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 + i * 0.1 }} className="flex items-center gap-3 text-white/80">
+                    <div className="p-2.5 bg-white/10 rounded-xl backdrop-blur-sm border border-white/10">{item.icon}</div>
+                    <span className="text-sm font-medium">{item.text}</span>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
           </div>
-        </div>
-        <div className="absolute -bottom-32 -left-32 w-96 h-96 bg-white/5 rounded-full" />
+          <div className="absolute -bottom-32 -left-32 w-96 h-96 bg-white/[0.03] rounded-full border border-white/[0.05]" />
+          <div className="absolute -top-20 -right-20 w-64 h-64 bg-white/[0.03] rounded-full border border-white/[0.05]" />
+        </GlobalBackground>
       </div>
 
-      <div className="flex-1 flex items-center justify-center px-6 py-12 bg-card">
-        <div className="w-full max-w-md">
+      <div className="flex-1 flex items-center justify-center px-6 py-12 bg-card relative">
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="w-full max-w-md">
           <div className="flex items-center justify-between mb-8">
             <Link to="/" className="lg:hidden flex items-center gap-2">
-              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center"><Zap className="w-4 h-4 text-white" /></div>
-              <span className="text-lg font-bold text-foreground">SubFlow</span>
+              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center shadow-md shadow-primary/20"><Zap className="w-4 h-4 text-white" /></div>
+              <span className="text-lg font-bold text-foreground tracking-tight">SubFlow</span>
             </Link>
             <ThemeToggle compact />
           </div>
@@ -145,10 +153,10 @@ export default function Register() {
           {/* ========== STEP: Form ========== */}
           {step === 'form' && (
             <>
-              <h1 className="text-2xl font-bold text-foreground">Create your account</h1>
-              <p className="mt-2 text-sm text-muted-foreground dark:text-slate-300">Already have an account? <Link to="/login" className="text-primary font-medium hover:text-primary/90">Sign in</Link></p>
+              <h1 className="text-2xl font-bold text-foreground tracking-tight">Create your account</h1>
+              <p className="mt-2 text-sm text-muted-foreground">Already have an account? <Link to="/login" className="text-primary font-semibold hover:text-primary/80 transition-colors">Sign in</Link></p>
 
-              {error && <div className="mt-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 text-sm rounded-lg">{error}</div>}
+              {error && <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="mt-4 p-3.5 bg-red-50/80 dark:bg-red-900/15 border border-red-200/50 dark:border-red-800/30 text-red-700 dark:text-red-400 text-sm rounded-xl backdrop-blur-sm">{error}</motion.div>}
 
               <form onSubmit={handleFormSubmit} className="mt-6 space-y-4">
                 <div className="grid grid-cols-2 gap-4">
@@ -235,7 +243,7 @@ export default function Register() {
               </Button>
             </div>
           )}
-        </div>
+        </motion.div>
       </div>
     </div>
   );

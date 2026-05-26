@@ -3,11 +3,13 @@ import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { ThemeToggle } from '../ui/ThemeToggle';
 import { CommandPalette } from '../ui/CommandPalette';
+import GlobalBackground from '../Background/GlobalBackground';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard, CreditCard, FileText, LifeBuoy, User,
   Settings, Users, BarChart3, Server, Package, MessageSquare,
   LogOut, Menu, Bell, ChevronDown, Zap, DollarSign, Wallet,
-  Activity, Gift, CheckCircle,
+  Activity, Gift, CheckCircle, X,
 } from 'lucide-react';
 import * as db from '../../db/database';
 
@@ -19,6 +21,33 @@ export function PublicLayout() {
     <div className="min-h-screen bg-background">
       <Outlet />
     </div>
+  );
+}
+
+// ====================================================================
+// SIDEBAR NAV ITEM — Premium glass with animated active state
+// ====================================================================
+function SidebarItem({ item, active, onClick }: { item: { key: string; label: string; icon: React.ComponentType<{ className?: string }> }; active: boolean; onClick: () => void; }) {
+  const Icon = item.icon;
+  return (
+    <Link to={item.key} onClick={onClick}
+      className={`relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group ${
+        active
+          ? 'bg-primary/10 text-primary font-semibold'
+          : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
+      }`}
+    >
+      {/* Active indicator bar */}
+      {active && (
+        <motion.div
+          layoutId="sidebar-indicator"
+          className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-primary rounded-r-full"
+          transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+        />
+      )}
+      <Icon className={`w-[18px] h-[18px] transition-colors ${active ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground'}`} />
+      <span className="truncate">{item.label}</span>
+    </Link>
   );
 }
 
@@ -68,137 +97,183 @@ export function UserLayout() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex">
-      <CommandPalette />
-      {/* Sidebar */}
-      <aside className={`fixed lg:static inset-y-0 left-0 z-40 w-64 bg-card border-r border-border flex flex-col transition-transform duration-200 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
-        <div className="h-16 flex items-center gap-2.5 px-6 border-b border-border/50">
-          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center"><Zap className="w-4 h-4 text-white" /></div>
-          <span className="text-lg font-bold text-foreground">SubFlow</span>
-        </div>
-        <nav className="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
-          {userNav.map(item => {
-            const Icon = item.icon;
-            const active = location.pathname.startsWith(item.key);
-            return (
-              <Link key={item.key} to={item.key} onClick={() => setSidebarOpen(false)}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${active ? 'bg-accent text-accent-foreground font-semibold' : 'text-muted-foreground hover:bg-muted hover:text-foreground'}`}>
-                <Icon className="w-5 h-5" />
-                {item.label}
-                {item.key === '/notifications' && notifCount > 0 && (
-                  <span className="ml-auto px-1.5 py-0.5 bg-red-500 text-white text-[10px] font-bold rounded-full">{notifCount}</span>
-                )}
-              </Link>
-            );
-          })}
-        </nav>
-        <div className="p-4 border-t border-border/50">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-primary/10 text-primary rounded-full flex items-center justify-center text-sm font-semibold">{user?.first_name?.[0]}{user?.last_name?.[0]}</div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-foreground truncate">{user?.first_name} {user?.last_name}</p>
-              <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+    <GlobalBackground intensity="subtle">
+      <div className="min-h-screen flex">
+        <CommandPalette />
+
+        {/* ==================== GLASS SIDEBAR ==================== */}
+        <aside className={`fixed lg:static inset-y-0 left-0 z-40 w-64 bg-card/70 backdrop-blur-xl border-r border-border/50 flex flex-col transition-transform duration-300 ease-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
+          {/* Logo */}
+          <div className="h-16 flex items-center gap-2.5 px-6 border-b border-border/30">
+            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center shadow-md shadow-primary/20">
+              <Zap className="w-4 h-4 text-white" />
+            </div>
+            <span className="text-lg font-bold text-foreground tracking-tight">SubFlow</span>
+          </div>
+
+          {/* Navigation */}
+          <nav className="flex-1 py-4 px-3 space-y-0.5 overflow-y-auto">
+            {userNav.map(item => {
+              const active = location.pathname.startsWith(item.key);
+              return (
+                <SidebarItem key={item.key} item={item} active={active} onClick={() => setSidebarOpen(false)} />
+              );
+            })}
+          </nav>
+
+          {/* User info */}
+          <div className="p-4 border-t border-border/30">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 bg-gradient-to-br from-primary/20 to-primary/10 text-primary rounded-xl flex items-center justify-center text-sm font-semibold border border-primary/10">{user?.first_name?.[0]}{user?.last_name?.[0]}</div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-foreground truncate">{user?.first_name} {user?.last_name}</p>
+                <p className="text-xs text-muted-foreground/70 truncate">{user?.email}</p>
+              </div>
             </div>
           </div>
-        </div>
-      </aside>
+        </aside>
 
-      {sidebarOpen && <div className="fixed inset-0 bg-black/30 dark:bg-black/50 z-30 lg:hidden" onClick={() => setSidebarOpen(false)} />}
-
-      <div className="flex-1 flex flex-col min-w-0">
-        <header className="h-16 bg-card border-b border-border flex items-center justify-between px-4 lg:px-6 sticky top-0 z-20">
-          <button onClick={() => setSidebarOpen(true)} className="lg:hidden p-2 hover:bg-muted dark:hover:bg-slate-800 rounded-lg"><Menu className="w-5 h-5 text-muted-foreground" /></button>
-          <div className="flex-1" />
-          <div className="flex items-center gap-2">
-            <button onClick={() => { const e = new KeyboardEvent('keydown', { key: 'k', metaKey: true }); document.dispatchEvent(e); }} className="hidden sm:flex items-center gap-2 px-3 py-1.5 text-xs text-muted-foreground/80 bg-muted rounded-lg border border-border hover:bg-gray-200 dark:hover:bg-slate-700">
-              <kbd className="font-mono text-[10px]">⌘K</kbd> Search...
-            </button>
-            <ThemeToggle />
-            {/* Notification bell */}
-            <div className="relative">
-              <button onClick={() => setNotifOpen(!notifOpen)} className="relative p-2 hover:bg-muted dark:hover:bg-slate-800 rounded-lg">
-                <Bell className="w-5 h-5 text-muted-foreground" />
-                {notifCount > 0 && <span className="absolute top-1 right-1 min-w-[18px] h-[18px] bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">{notifCount}</span>}
-              </button>
-              {notifOpen && (
-                <>
-                  <div className="fixed inset-0 z-40" onClick={() => setNotifOpen(false)} />
-                  <div className="absolute right-0 mt-2 w-80 bg-card rounded-xl shadow-xl border border-border z-50 animate-scaleIn overflow-hidden">
-                    <div className="px-4 py-3 border-b border-border/50 flex items-center justify-between">
-                      <span className="text-sm font-semibold text-foreground">Notifications</span>
-                      {notifCount > 0 && <span className="text-xs text-primary">{notifCount} new</span>}
-                    </div>
-                    <div className="max-h-72 overflow-y-auto">
-                      {notifs.length === 0 ? (
-                        <p className="text-sm text-muted-foreground/80 text-center py-8">No notifications</p>
-                      ) : (
-                        notifs.map(n => (
-                          <button key={n.id} onClick={() => handleNotifClick(n.id)} className={`w-full text-left px-4 py-3 hover:bg-muted/50 border-b border-border/50 transition-colors ${!n.read ? 'bg-primary/5' : ''}`}>
-                            <p className="text-sm font-medium text-foreground truncate">{n.title}</p>
-                            <p className="text-xs text-muted-foreground truncate mt-0.5">{n.message}</p>
-                            <p className="text-[10px] text-muted-foreground/80 mt-1">{new Date(n.created_at).toLocaleString()}</p>
-                          </button>
-                        ))
-                      )}
-                    </div>
-                    <Link to="/notifications" onClick={() => setNotifOpen(false)} className="block text-center px-4 py-2.5 text-xs font-medium text-primary hover:bg-muted/50 border-t border-border/50">View all notifications</Link>
-                  </div>
-                </>
-              )}
-            </div>
-            {/* Profile dropdown */}
-            <div className="relative">
-              <button onClick={() => setProfileOpen(!profileOpen)} className="flex items-center gap-2 p-1.5 hover:bg-muted rounded-lg">
-                <div className="w-8 h-8 bg-primary/10 text-primary rounded-full flex items-center justify-center text-xs font-semibold">{user?.first_name?.[0]}{user?.last_name?.[0]}</div>
-                <ChevronDown className="w-4 h-4 text-muted-foreground/80" />
-              </button>
-              {profileOpen && (
-                <>
-                  <div className="fixed inset-0 z-40" onClick={() => setProfileOpen(false)} />
-                  <div className="absolute right-0 mt-2 w-48 bg-card rounded-lg shadow-lg border border-border py-1 z-50 animate-scaleIn">
-                    <Link to="/profile" onClick={() => setProfileOpen(false)} className="flex items-center gap-2 px-4 py-2 text-sm text-foreground/90 hover:bg-muted"><User className="w-4 h-4" /> Profile</Link>
-                    <Link to="/referrals" onClick={() => setProfileOpen(false)} className="flex items-center gap-2 px-4 py-2 text-sm text-foreground/90 hover:bg-muted"><Gift className="w-4 h-4" /> Referrals</Link>
-                    <button onClick={() => { logout(); navigate('/login'); }} className="w-full flex items-center gap-2 px-4 py-2 text-sm text-destructive hover:bg-destructive/10"><LogOut className="w-4 h-4" /> Logout</button>
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
-        </header>
-
-        <main className="flex-1 p-4 lg:p-6 overflow-auto">
-          {/* Onboarding checklist */}
-          {showOnboarding && onboarding.progress < 100 && location.pathname === '/dashboard' && (
-            <div className="mb-6 bg-muted/40 rounded-xl border border-border p-5 animate-fadeIn">
-              <div className="flex items-start justify-between mb-3">
-                <div>
-                  <h3 className="text-sm font-bold text-foreground">🚀 Get started with SubFlow</h3>
-                  <p className="text-xs text-muted-foreground mt-0.5">Complete these steps to set up your account</p>
-                </div>
-                <button onClick={() => setShowOnboarding(false)} className="text-muted-foreground/80 hover:text-muted-foreground text-sm">✕</button>
-              </div>
-              <div className="w-full bg-secondary rounded-full h-2 mb-4">
-                <div className="bg-primary rounded-full h-2 transition-all" style={{ width: `${onboarding.progress}%` }} />
-              </div>
-              <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
-                {onboarding.steps.map(s => (
-                  <Link key={s.id} to={s.link} className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${s.completed ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' : 'bg-card text-foreground/90 hover:bg-muted border border-border'}`}>
-                    {s.completed ? <CheckCircle className="w-4 h-4 text-emerald-500" /> : <span className="w-4 h-4 rounded-full border-2 border-input" />}
-                    <span className="truncate">{s.title}</span>
-                  </Link>
-                ))}
-              </div>
-            </div>
+        {/* Mobile overlay */}
+        <AnimatePresence>
+          {sidebarOpen && (
+            <motion.div
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/40 backdrop-blur-sm z-30 lg:hidden"
+              onClick={() => setSidebarOpen(false)}
+            />
           )}
-          <Outlet />
-        </main>
+        </AnimatePresence>
+
+        {/* ==================== MAIN CONTENT ==================== */}
+        <div className="flex-1 flex flex-col min-w-0">
+          {/* Glass Header */}
+          <header className="h-16 bg-card/50 backdrop-blur-xl border-b border-border/30 flex items-center justify-between px-4 lg:px-6 sticky top-0 z-20">
+            <button onClick={() => setSidebarOpen(true)} className="lg:hidden p-2 hover:bg-muted/50 rounded-xl transition-colors">
+              <Menu className="w-5 h-5 text-muted-foreground" />
+            </button>
+            <div className="flex-1" />
+            <div className="flex items-center gap-1.5">
+              {/* Command palette trigger */}
+              <button onClick={() => { const e = new KeyboardEvent('keydown', { key: 'k', metaKey: true }); document.dispatchEvent(e); }} className="hidden sm:flex items-center gap-2 px-3 py-1.5 text-xs text-muted-foreground/60 bg-muted/30 rounded-lg border border-border/50 hover:bg-muted/50 hover:text-muted-foreground transition-all">
+                <kbd className="font-mono text-[10px] opacity-60">⌘K</kbd> Search...
+              </button>
+              <ThemeToggle />
+
+              {/* Notification bell */}
+              <div className="relative">
+                <button onClick={() => setNotifOpen(!notifOpen)} className="relative p-2 hover:bg-muted/50 rounded-xl transition-colors">
+                  <Bell className="w-5 h-5 text-muted-foreground" />
+                  {notifCount > 0 && <span className="absolute top-1 right-1 min-w-[16px] h-[16px] bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-sm shadow-red-500/30">{notifCount}</span>}
+                </button>
+                <AnimatePresence>
+                  {notifOpen && (
+                    <>
+                      <div className="fixed inset-0 z-40" onClick={() => setNotifOpen(false)} />
+                      <motion.div
+                        initial={{ opacity: 0, y: 8, scale: 0.96 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 8, scale: 0.96 }}
+                        transition={{ duration: 0.2, ease: 'easeOut' }}
+                        className="absolute right-0 mt-2 w-80 bg-card/95 backdrop-blur-xl rounded-2xl shadow-2xl shadow-black/10 dark:shadow-black/30 border border-border/50 z-50 overflow-hidden"
+                      >
+                        <div className="px-4 py-3 border-b border-border/30 flex items-center justify-between">
+                          <span className="text-sm font-bold text-foreground">Notifications</span>
+                          {notifCount > 0 && <span className="text-xs text-primary font-semibold">{notifCount} new</span>}
+                        </div>
+                        <div className="max-h-72 overflow-y-auto">
+                          {notifs.length === 0 ? (
+                            <p className="text-sm text-muted-foreground/60 text-center py-8">No notifications</p>
+                          ) : (
+                            notifs.map(n => (
+                              <button key={n.id} onClick={() => handleNotifClick(n.id)} className={`w-full text-left px-4 py-3 hover:bg-muted/30 border-b border-border/20 transition-colors ${!n.read ? 'bg-primary/[0.03]' : ''}`}>
+                                <p className="text-sm font-medium text-foreground truncate">{n.title}</p>
+                                <p className="text-xs text-muted-foreground/70 truncate mt-0.5">{n.message}</p>
+                                <p className="text-[10px] text-muted-foreground/50 mt-1">{new Date(n.created_at).toLocaleString()}</p>
+                              </button>
+                            ))
+                          )}
+                        </div>
+                        <Link to="/notifications" onClick={() => setNotifOpen(false)} className="block text-center px-4 py-2.5 text-xs font-semibold text-primary hover:bg-muted/30 border-t border-border/30 transition-colors">View all notifications</Link>
+                      </motion.div>
+                    </>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              {/* Profile dropdown */}
+              <div className="relative">
+                <button onClick={() => setProfileOpen(!profileOpen)} className="flex items-center gap-2 p-1.5 hover:bg-muted/50 rounded-xl transition-colors">
+                  <div className="w-8 h-8 bg-gradient-to-br from-primary/20 to-primary/10 text-primary rounded-lg flex items-center justify-center text-xs font-semibold border border-primary/10">{user?.first_name?.[0]}{user?.last_name?.[0]}</div>
+                  <ChevronDown className="w-3.5 h-3.5 text-muted-foreground/60" />
+                </button>
+                <AnimatePresence>
+                  {profileOpen && (
+                    <>
+                      <div className="fixed inset-0 z-40" onClick={() => setProfileOpen(false)} />
+                      <motion.div
+                        initial={{ opacity: 0, y: 8, scale: 0.96 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 8, scale: 0.96 }}
+                        transition={{ duration: 0.2, ease: 'easeOut' }}
+                        className="absolute right-0 mt-2 w-48 bg-card/95 backdrop-blur-xl rounded-xl shadow-xl border border-border/50 py-1 z-50"
+                      >
+                        <Link to="/profile" onClick={() => setProfileOpen(false)} className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-foreground/90 hover:bg-muted/40 transition-colors"><User className="w-4 h-4" /> Profile</Link>
+                        <Link to="/referrals" onClick={() => setProfileOpen(false)} className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-foreground/90 hover:bg-muted/40 transition-colors"><Gift className="w-4 h-4" /> Referrals</Link>
+                        <div className="border-t border-border/30 my-1" />
+                        <button onClick={() => { logout(); navigate('/login'); }} className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-destructive hover:bg-destructive/5 transition-colors"><LogOut className="w-4 h-4" /> Logout</button>
+                      </motion.div>
+                    </>
+                  )}
+                </AnimatePresence>
+              </div>
+            </div>
+          </header>
+
+          <main className="flex-1 p-4 lg:p-6 overflow-auto">
+            {/* Onboarding checklist */}
+            {showOnboarding && onboarding.progress < 100 && location.pathname === '/dashboard' && (
+              <motion.div
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-6 bg-card/60 backdrop-blur-sm rounded-2xl border border-border/50 p-5"
+              >
+                <div className="flex items-start justify-between mb-3">
+                  <div>
+                    <h3 className="text-sm font-bold text-foreground">🚀 Get started with SubFlow</h3>
+                    <p className="text-xs text-muted-foreground/70 mt-0.5">Complete these steps to set up your account</p>
+                  </div>
+                  <button onClick={() => setShowOnboarding(false)} className="text-muted-foreground/50 hover:text-muted-foreground p-1 rounded-lg hover:bg-muted/50 transition-colors">
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+                <div className="w-full bg-muted/50 rounded-full h-1.5 mb-4 overflow-hidden">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${onboarding.progress}%` }}
+                    transition={{ duration: 1, ease: 'easeOut' }}
+                    className="bg-gradient-to-r from-primary to-primary/70 rounded-full h-1.5"
+                  />
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                  {onboarding.steps.map(s => (
+                    <Link key={s.id} to={s.link} className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium transition-all ${s.completed ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20' : 'bg-card/50 text-foreground/80 hover:bg-muted/50 border border-border/50'}`}>
+                      {s.completed ? <CheckCircle className="w-4 h-4 text-emerald-500" /> : <span className="w-4 h-4 rounded-full border-2 border-border" />}
+                      <span className="truncate">{s.title}</span>
+                    </Link>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+            <Outlet />
+          </main>
+        </div>
       </div>
-    </div>
+    </GlobalBackground>
   );
 }
 
 // ====================================================================
-// ADMIN LAYOUT
+// ADMIN LAYOUT — Premium glass enterprise
 // ====================================================================
 const adminNav = [
   { key: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true },
@@ -220,72 +295,78 @@ export function AdminLayout() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-background flex">
-      <CommandPalette />
-      {/* Sidebar */}
-      <aside className={`fixed lg:static inset-y-0 left-0 z-40 w-64 bg-card border-r border-border flex flex-col transition-transform duration-200 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
-        <div className="h-16 flex items-center gap-2.5 px-6 border-b border-border/50">
-          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-            <Zap className="w-4 h-4 text-white" />
-          </div>
-          <span className="text-lg font-bold text-foreground">SubFlow</span>
-          <span className="ml-auto px-2 py-0.5 bg-amber-500/20 text-amber-400 text-[10px] font-semibold rounded-full">ADMIN</span>
-        </div>
+    <GlobalBackground intensity="subtle">
+      <div className="min-h-screen flex">
+        <CommandPalette />
 
-        <nav className="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
-          {adminNav.map(item => {
-            const Icon = item.icon;
-            const active = item.exact ? location.pathname === item.key : location.pathname.startsWith(item.key);
-            return (
-              <Link key={item.key} to={item.key} onClick={() => setSidebarOpen(false)}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${active ? 'bg-accent text-accent-foreground font-semibold' : 'text-muted-foreground hover:bg-muted hover:text-foreground'}`}>
-                <Icon className="w-5 h-5" />
-                {item.label}
-              </Link>
-            );
-          })}
-        </nav>
-
-        <div className="p-4 border-t border-border/50">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-primary/10 text-primary rounded-full flex items-center justify-center text-sm font-semibold">
-              {user?.first_name?.[0]}{user?.last_name?.[0]}
+        {/* ==================== ADMIN GLASS SIDEBAR ==================== */}
+        <aside className={`fixed lg:static inset-y-0 left-0 z-40 w-64 bg-card/70 backdrop-blur-xl border-r border-border/50 flex flex-col transition-transform duration-300 ease-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
+          <div className="h-16 flex items-center gap-2.5 px-6 border-b border-border/30">
+            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center shadow-md shadow-primary/20">
+              <Zap className="w-4 h-4 text-white" />
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-foreground truncate">{user?.first_name} {user?.last_name}</p>
-              <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+            <span className="text-lg font-bold text-foreground tracking-tight">SubFlow</span>
+            <span className="ml-auto px-2 py-0.5 bg-amber-500/15 text-amber-500 dark:text-amber-400 text-[10px] font-bold rounded-full border border-amber-500/20">ADMIN</span>
+          </div>
+
+          <nav className="flex-1 py-4 px-3 space-y-0.5 overflow-y-auto">
+            {adminNav.map(item => {
+              const active = item.exact ? location.pathname === item.key : location.pathname.startsWith(item.key);
+              return (
+                <SidebarItem key={item.key} item={item} active={active} onClick={() => setSidebarOpen(false)} />
+              );
+            })}
+          </nav>
+
+          <div className="p-4 border-t border-border/30">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 bg-gradient-to-br from-primary/20 to-primary/10 text-primary rounded-xl flex items-center justify-center text-sm font-semibold border border-primary/10">
+                {user?.first_name?.[0]}{user?.last_name?.[0]}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-foreground truncate">{user?.first_name} {user?.last_name}</p>
+                <p className="text-xs text-muted-foreground/70 truncate">{user?.email}</p>
+              </div>
             </div>
           </div>
+        </aside>
+
+        <AnimatePresence>
+          {sidebarOpen && (
+            <motion.div
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/40 backdrop-blur-sm z-30 lg:hidden"
+              onClick={() => setSidebarOpen(false)}
+            />
+          )}
+        </AnimatePresence>
+
+        <div className="flex-1 flex flex-col min-w-0">
+          <header className="h-16 bg-card/50 backdrop-blur-xl border-b border-border/30 flex items-center justify-between px-4 lg:px-6 sticky top-0 z-20">
+            <button onClick={() => setSidebarOpen(true)} className="lg:hidden p-2 hover:bg-muted/50 rounded-xl transition-colors">
+              <Menu className="w-5 h-5 text-muted-foreground" />
+            </button>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground/70">
+              <BarChart3 className="w-4 h-4" />
+              <span className="font-medium">Admin Panel</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <ThemeToggle />
+              <button className="relative p-2 hover:bg-muted/50 rounded-xl transition-colors">
+                <Bell className="w-5 h-5 text-muted-foreground" />
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full shadow-sm shadow-red-500/30" />
+              </button>
+              <button onClick={() => { logout(); navigate('/login'); }} className="flex items-center gap-2 px-3 py-2 text-sm text-destructive hover:bg-destructive/5 rounded-xl transition-colors font-medium">
+                <LogOut className="w-4 h-4" /> Logout
+              </button>
+            </div>
+          </header>
+
+          <main className="flex-1 p-4 lg:p-6 overflow-auto">
+            <Outlet />
+          </main>
         </div>
-      </aside>
-
-      {sidebarOpen && <div className="fixed inset-0 bg-black/30 dark:bg-black/50 z-30 lg:hidden" onClick={() => setSidebarOpen(false)} />}
-
-      <div className="flex-1 flex flex-col min-w-0">
-        <header className="h-16 bg-card border-b border-border flex items-center justify-between px-4 lg:px-6 sticky top-0 z-20">
-          <button onClick={() => setSidebarOpen(true)} className="lg:hidden p-2 hover:bg-muted dark:hover:bg-slate-800 rounded-lg">
-            <Menu className="w-5 h-5 text-muted-foreground" />
-          </button>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <BarChart3 className="w-4 h-4" />
-            <span>Admin Panel</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <ThemeToggle />
-            <button className="relative p-2 hover:bg-muted dark:hover:bg-slate-800 rounded-lg">
-              <Bell className="w-5 h-5 text-muted-foreground" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full" />
-            </button>
-            <button onClick={() => { logout(); navigate('/login'); }} className="flex items-center gap-2 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg">
-              <LogOut className="w-4 h-4" /> Logout
-            </button>
-          </div>
-        </header>
-
-        <main className="flex-1 p-4 lg:p-6 overflow-auto">
-          <Outlet />
-        </main>
       </div>
-    </div>
+    </GlobalBackground>
   );
 }

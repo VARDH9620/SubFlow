@@ -1,12 +1,15 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, type Variants } from 'framer-motion';
 import { 
   Zap, Shield, BarChart3, Users, ArrowRight, CheckCircle, 
   Cloud, GitBranch, Mail, Globe, Cpu, Layers, Send 
 } from 'lucide-react';
 import { ThemeToggle } from '../components/ui/ThemeToggle';
-
+import MeshGradient from '../components/Background/MeshGradient';
+import Orbs from '../components/Background/Orbs';
+import ParticleCanvas from '../components/Background/ParticleCanvas';
+import SpotlightRings from '../components/Background/SpotlightRings';
 function DashboardMockup() {
   const mockSpendData = [
     { month: 'Jan', spend: 400 },
@@ -161,7 +164,7 @@ export default function Landing() {
     { name: 'Enterprise', price: '99.99', features: ['Unlimited Services', 'Custom Analytics', '24/7 Support', 'Unlimited Storage', 'API Access', 'SSO', 'Custom Domain'], popular: false },
   ];
 
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
@@ -171,7 +174,7 @@ export default function Landing() {
     }
   };
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { opacity: 0, y: 30 },
     show: { 
       opacity: 1, 
@@ -194,6 +197,10 @@ export default function Landing() {
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
+  <MeshGradient />
+  <Orbs />
+  <ParticleCanvas />
+  <SpotlightRings />
       {/* Structural Tech Grid Background */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,var(--border)_1px,transparent_1px),linear-gradient(to_bottom,var(--border)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_80%,transparent_100%)] opacity-[0.09] dark:opacity-[0.05] pointer-events-none z-0" />
 

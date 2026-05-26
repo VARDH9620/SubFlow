@@ -8,7 +8,7 @@ import type {
   User, Service, Plan, Subscription, Invoice, Payment,
   SupportTicket, TicketMessage, Notification, PaymentMethod,
   DashboardStats, ChartDataPoint, PaymentStats, UserRole,
-  SubscriptionStatus, TicketStatus, PaymentStatus,
+  SubscriptionStatus, PaymentStatus,
 } from '../types';
 import emailjs from '@emailjs/browser';
 
