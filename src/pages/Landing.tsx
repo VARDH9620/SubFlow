@@ -67,11 +67,65 @@ export default function Landing() {
           <p className="mt-4 text-xs text-muted-foreground/80">No credit card required · 14-day free trial · Cancel anytime</p>
 
           {/* About Company */}
-          <div className="mt-8 max-w-lg mx-auto bg-card rounded-xl p-5 border border-border text-left">
-            <p className="text-sm font-semibold text-foreground mb-1.5">About SubFlow</p>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              SubFlow is an enterprise subscription intelligence platform designed to give organizations full control over their software investments. By unifying operations, billing analytics, and tenant management into a single, cohesive interface, we help scaleups and enterprises optimize SaaS costs and streamline support workflows.
-            </p>
+          <div className="mt-12 max-w-2xl mx-auto relative group">
+            {/* Background Gradient Glow */}
+            <div className="absolute -inset-1 bg-gradient-to-r from-primary/30 to-indigo-500/30 rounded-2xl blur opacity-25 group-hover:opacity-40 transition duration-1000 group-hover:duration-200" />
+            
+            {/* Card Content */}
+            <div className="relative bg-card/75 backdrop-blur-md rounded-2xl p-6 md:p-8 border border-border/80 shadow-lg flex flex-col md:flex-row gap-6 md:gap-8 items-stretch text-left transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5">
+              <div className="flex-1 flex flex-col justify-between">
+                <div>
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-semibold tracking-wider uppercase bg-primary/10 text-primary mb-3.5 border border-primary/20">
+                    Platform Overview
+                  </div>
+                  <h3 className="text-lg font-bold text-foreground mb-3 leading-tight">
+                    Powering Subscription Intelligence
+                  </h3>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    SubFlow is designed to give modern organizations full visibility and control over their software investments. We consolidate multi-tenant operations, granular billing analytics, and tenant management into a single, high-performance portal.
+                  </p>
+                </div>
+                <div className="mt-4 text-[11px] font-semibold text-primary flex items-center gap-1">
+                  Learn more about our technology <ArrowRight className="w-3.5 h-3.5" />
+                </div>
+              </div>
+
+              {/* Vertical divider on desktop */}
+              <div className="hidden md:block w-px bg-border/50 self-stretch" />
+
+              {/* Key Highlights */}
+              <div className="flex flex-col justify-center gap-4 min-w-[200px]">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-500 shrink-0 border border-emerald-500/20">
+                    <CheckCircle className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h5 className="text-xs font-semibold text-foreground">SaaS Cost Control</h5>
+                    <p className="text-[10px] text-muted-foreground mt-0.5">Save up to 30% on unused licenses.</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-500 shrink-0 border border-indigo-500/20">
+                    <Shield className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h5 className="text-xs font-semibold text-foreground">Bank-Grade Security</h5>
+                    <p className="text-[10px] text-muted-foreground mt-0.5">Isolated databases and RBAC security.</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-500 shrink-0 border border-amber-500/20">
+                    <Zap className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h5 className="text-xs font-semibold text-foreground">Instant Integration</h5>
+                    <p className="text-[10px] text-muted-foreground mt-0.5">API-first architecture built to scale.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
