@@ -1,7 +1,6 @@
 // ============================================================
-// SubFlow — Simulated SQL Database Layer
-// Uses localStorage to persist data across sessions
-// All operations mirror SQL queries for easy migration
+// SubFlow — Client Database Layer (API Client)
+// All operations now fetch from the backend PostgreSQL server
 // ============================================================
 
 import type {
@@ -12,129 +11,76 @@ import type {
 } from '../types';
 import emailjs from '@emailjs/browser';
 
-// --- UUID generator ---
-const uid = (): string =>
-  crypto.randomUUID ? crypto.randomUUID() : 'id-' + Math.random().toString(36).slice(2, 11);
+const API_BASE = '/api';
 
-// --- Storage helpers ---
-function getTable<T>(name: string): T[] {
-  try {
-    const data = localStorage.getItem(`subflow_${name}`);
-    return data ? JSON.parse(data) : [];
-  } catch { return []; }
-}
+// Helper for making fetch requests
+async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
+  const url = `${API_BASE}${path}`;
+  const response = await fetch(url, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(options?.headers || {}),
+    },
+  });
 
-function setTable<T>(name: string, data: T[]): void {
-  localStorage.setItem(`subflow_${name}`, JSON.stringify(data));
-}
-
-// --- Simple password hash (for demo — use bcrypt in production) ---
-function hashPassword(pw: string): string {
-  let hash = 0;
-  for (let i = 0; i < pw.length; i++) {
-    const c = pw.charCodeAt(i);
-    hash = ((hash << 5) - hash) + c;
-    hash |= 0;
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
   }
-  return 'hashed_' + Math.abs(hash).toString(36) + '_' + pw.length;
+
+  return response.json();
 }
 
 // ====================================================================
 // DATABASE INITIALIZATION
 // ====================================================================
 
-export function initializeDatabase(): void {
-  if (localStorage.getItem('subflow_initialized')) return;
-
-  // Admin user
-  const adminUser: User = {
-    id: 'admin-001',
-    email: 'admin@subflow.io',
-    password_hash: hashPassword('admin123'),
-    first_name: 'Admin',
-    last_name: 'User',
-    phone: '+1234567890',
-    avatar_url: null,
-    role: 'admin',
-    is_verified: true,
-    created_at: '2024-01-01T10:00:00Z',
-    updated_at: '2024-01-01T10:00:00Z',
-  };
-
-  setTable('users', [adminUser]);
-  setTable('services', []);
-  setTable('plans', []);
-  setTable('subscriptions', []);
-  setTable('invoices', []);
-  setTable('support_tickets', []);
-  setTable('ticket_messages', []);
-  setTable('notifications', []);
-  setTable('audit_logs', []);
-  setTable('payment_methods', []);
-
-  localStorage.setItem('subflow_initialized', 'true');
+export async function initializeDatabase(): Promise<void> {
+  // Backend database is initialized and seeded server-side.
+  return Promise.resolve();
 }
 
-export function resetDatabase(): void {
-  const keys = Object.keys(localStorage).filter(k => k.startsWith('subflow_'));
-  keys.forEach(k => localStorage.removeItem(k));
-  initializeDatabase();
+export async function resetDatabase(): Promise<void> {
+  // Resetting database is handled via backend if desired.
+  return Promise.resolve();
 }
 
 // ====================================================================
-// QUERY FUNCTIONS — mirror SQL SELECT statements
+// AUTH FUNCTIONS
 // ====================================================================
 
-// --- AUTH ---
-export function authenticateUser(email: string, password: string): User | null {
-  const users = getTable<User>('users');
-  const user = users.find(u => u.email === email);
-  if (!user) return null;
-  if (user.password_hash !== hashPassword(password)) return null;
-  return { ...user };
+export async function authenticateUser(email: string, password: string): Promise<User | null> {
+  try {
+    return await apiFetch<User>('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    });
+  } catch {
+    return null;
+  }
 }
 
-export function registerUser(data: {
+export async function registerUser(data: {
   first_name: string; last_name: string;
   email: string; phone: string; password: string;
   is_verified?: boolean;
-}): User | null {
-  const users = getTable<User>('users');
-  if (users.find(u => u.email === data.email)) return null;
-
-  const newUser: User = {
-    id: uid(),
-    email: data.email,
-    password_hash: hashPassword(data.password),
-    first_name: data.first_name,
-    last_name: data.last_name,
-    phone: data.phone,
-    avatar_url: null,
-    role: 'user',
-    is_verified: data.is_verified ?? true,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  };
-  users.push(newUser);
-  setTable('users', users);
-  return { ...newUser };
+}): Promise<User | null> {
+  try {
+    return await apiFetch<User>('/auth/register', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  } catch {
+    return null;
+  }
 }
 
-// ====================================================================
-// OTP & PASSWORD RESET — Simulated email verification
-// ====================================================================
-
-// In-memory OTP store (persists only during session)
-const otpStore: Record<string, { otp: string; expires: number; attempts: number }> = {};
-
-export function generateOTP(email: string): string {
-  // Generate secure random 6-digit code
-  const otp = Math.floor(100000 + Math.random() * 900000).toString();
-  otpStore[email.toLowerCase()] = {
-    otp,
-    expires: Date.now() + 10 * 60 * 1000, // 10 minutes
-    attempts: 0,
-  };
+export async function generateOTP(email: string): Promise<string> {
+  const { otp } = await apiFetch<{ otp: string }>('/auth/otp/generate', {
+    method: 'POST',
+    body: JSON.stringify({ email }),
+  });
 
   // Send real email to user in real-time using EmailJS
   emailjs.send(
@@ -153,479 +99,306 @@ export function generateOTP(email: string): string {
   return otp;
 }
 
-export function verifyOTP(email: string, code: string): { valid: boolean; error?: string } {
-  const entry = otpStore[email.toLowerCase()];
-  if (!entry) return { valid: false, error: 'No OTP was sent to this email. Please request a new one.' };
-  if (Date.now() > entry.expires) {
-    delete otpStore[email.toLowerCase()];
-    return { valid: false, error: 'OTP has expired. Please request a new one.' };
-  }
-  entry.attempts++;
-  if (entry.attempts > 5) {
-    delete otpStore[email.toLowerCase()];
-    return { valid: false, error: 'Too many attempts. Please request a new OTP.' };
-  }
-  if (code !== entry.otp) return { valid: false, error: `Invalid OTP. ${5 - entry.attempts} attempts remaining.` };
-  delete otpStore[email.toLowerCase()];
-  return { valid: true };
-}
-
-export function markUserVerified(email: string): void {
-  const users = getTable<User>('users');
-  const idx = users.findIndex(u => u.email === email);
-  if (idx !== -1) {
-    users[idx].is_verified = true;
-    users[idx].updated_at = new Date().toISOString();
-    setTable('users', users);
-  }
-}
-
-export function checkEmailExists(email: string): boolean {
-  return getTable<User>('users').some(u => u.email === email);
-}
-
-export function resetPassword(email: string, newPassword: string): boolean {
-  const users = getTable<User>('users');
-  const idx = users.findIndex(u => u.email === email);
-  if (idx === -1) return false;
-  users[idx].password_hash = hashPassword(newPassword);
-  users[idx].updated_at = new Date().toISOString();
-  setTable('users', users);
-  return true;
-}
-
-// --- USERS ---
-export function getAllUsers(): User[] {
-  return getTable<User>('users');
-}
-
-export function getUserById(id: string): User | null {
-  return getTable<User>('users').find(u => u.id === id) || null;
-}
-
-export function updateUser(id: string, data: Partial<User>): User | null {
-  const users = getTable<User>('users');
-  const idx = users.findIndex(u => u.id === id);
-  if (idx === -1) return null;
-  users[idx] = { ...users[idx], ...data, updated_at: new Date().toISOString() };
-  setTable('users', users);
-  return { ...users[idx] };
-}
-
-export function deleteUser(id: string): boolean {
-  const users = getTable<User>('users');
-  const filtered = users.filter(u => u.id !== id);
-  if (filtered.length === users.length) return false;
-  setTable('users', filtered);
-  // Cascade delete
-  setTable('subscriptions', getTable<Subscription>('subscriptions').filter(s => s.user_id !== id));
-  setTable('invoices', getTable<Invoice>('invoices').filter(i => i.user_id !== id));
-  setTable('support_tickets', getTable<SupportTicket>('support_tickets').filter(t => t.user_id !== id));
-  return true;
-}
-
-// --- SERVICES ---
-export function getAllServices(): Service[] {
-  return getTable<Service>('services');
-}
-
-export function getServiceById(id: string): Service | null {
-  return getTable<Service>('services').find(s => s.id === id) || null;
-}
-
-export function createService(data: Omit<Service, 'id' | 'created_at' | 'updated_at'>): Service {
-  const services = getTable<Service>('services');
-  const svc: Service = { ...data, id: uid(), created_at: new Date().toISOString(), updated_at: new Date().toISOString() };
-  services.push(svc);
-  setTable('services', services);
-  return svc;
-}
-
-export function updateService(id: string, data: Partial<Service>): Service | null {
-  const services = getTable<Service>('services');
-  const idx = services.findIndex(s => s.id === id);
-  if (idx === -1) return null;
-  services[idx] = { ...services[idx], ...data, updated_at: new Date().toISOString() };
-  setTable('services', services);
-  return { ...services[idx] };
-}
-
-export function deleteService(id: string): boolean {
-  const services = getTable<Service>('services');
-  const filtered = services.filter(s => s.id !== id);
-  if (filtered.length === services.length) return false;
-  setTable('services', filtered);
-  setTable('plans', getTable<Plan>('plans').filter(p => p.service_id !== id));
-  return true;
-}
-
-// --- PLANS ---
-export function getAllPlans(): Plan[] {
-  return getTable<Plan>('plans');
-}
-
-export function getPlansByService(serviceId: string): Plan[] {
-  return getTable<Plan>('plans').filter(p => p.service_id === serviceId);
-}
-
-export function getPlanById(id: string): Plan | null {
-  return getTable<Plan>('plans').find(p => p.id === id) || null;
-}
-
-export function createPlan(data: Omit<Plan, 'id' | 'created_at' | 'updated_at'>): Plan {
-  const plans = getTable<Plan>('plans');
-  const plan: Plan = { ...data, id: uid(), created_at: new Date().toISOString(), updated_at: new Date().toISOString() };
-  plans.push(plan);
-  setTable('plans', plans);
-  return plan;
-}
-
-export function updatePlan(id: string, data: Partial<Plan>): Plan | null {
-  const plans = getTable<Plan>('plans');
-  const idx = plans.findIndex(p => p.id === id);
-  if (idx === -1) return null;
-  plans[idx] = { ...plans[idx], ...data, updated_at: new Date().toISOString() };
-  setTable('plans', plans);
-  return { ...plans[idx] };
-}
-
-export function deletePlan(id: string): boolean {
-  const plans = getTable<Plan>('plans');
-  const filtered = plans.filter(p => p.id !== id);
-  if (filtered.length === plans.length) return false;
-  setTable('plans', filtered);
-  return true;
-}
-
-// --- SUBSCRIPTIONS ---
-export function getSubscriptionsByUser(userId: string): Subscription[] {
-  const subs = getTable<Subscription>('subscriptions').filter(s => s.user_id === userId);
-  const plans = getTable<Plan>('plans');
-  const services = getTable<Service>('services');
-  return subs.map(sub => {
-    const plan = plans.find(p => p.id === sub.plan_id);
-    const service = plan ? services.find(s => s.id === plan.service_id) : null;
-    return {
-      ...sub,
-      plan_name: plan?.name || 'Unknown',
-      service_name: service?.name || 'Unknown',
-      service_id: service?.id,
-      price: plan?.price || 0,
-      billing_cycle: plan?.billing_cycle,
-    };
-  });
-}
-
-export function getAllSubscriptions(): Subscription[] {
-  const subs = getTable<Subscription>('subscriptions');
-  const plans = getTable<Plan>('plans');
-  const services = getTable<Service>('services');
-  const users = getTable<User>('users');
-  return subs.map(sub => {
-    const plan = plans.find(p => p.id === sub.plan_id);
-    const service = plan ? services.find(s => s.id === plan.service_id) : null;
-    const user = users.find(u => u.id === sub.user_id);
-    return {
-      ...sub,
-      plan_name: plan?.name || 'Unknown',
-      service_name: service?.name || 'Unknown',
-      service_id: service?.id,
-      price: plan?.price || 0,
-      billing_cycle: plan?.billing_cycle,
-      user_email: user?.email || 'Unknown',
-      user_name: user ? `${user.first_name} ${user.last_name}` : 'Unknown',
-    };
-  });
-}
-
-export function createSubscription(userId: string, planId: string): Subscription {
-  const plan = getPlanById(planId);
-  const now = new Date();
-  const end = new Date(now);
-  end.setMonth(end.getMonth() + 1);
-
-  const sub: Subscription = {
-    id: uid(),
-    user_id: userId,
-    plan_id: planId,
-    status: 'active',
-    start_date: now.toISOString().split('T')[0],
-    end_date: end.toISOString().split('T')[0],
-    trial_end: plan ? new Date(now.getTime() + plan.trial_days * 86400000).toISOString().split('T')[0] : null,
-    auto_renew: true,
-    created_at: now.toISOString(),
-    updated_at: now.toISOString(),
-  };
-
-  const subs = getTable<Subscription>('subscriptions');
-  subs.push(sub);
-  setTable('subscriptions', subs);
-
-  // Generate invoice
-  if (plan) {
-    const amount = plan.price;
-    const tax = +(amount * 0.18).toFixed(2);
-    const invoice: Invoice = {
-      id: uid(),
-      subscription_id: sub.id,
-      user_id: userId,
-      amount: +amount.toFixed(2),
-      tax,
-      discount: 0,
-      total: +(amount + tax).toFixed(2),
-      status: 'pending',
-      due_date: new Date(now.getTime() + 7 * 86400000).toISOString().split('T')[0],
-      paid_at: null,
-      invoice_number: `INV-${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}-${uid().slice(0, 8).toUpperCase()}`,
-      created_at: now.toISOString(),
-    };
-    const invoices = getTable<Invoice>('invoices');
-    invoices.push(invoice);
-    setTable('invoices', invoices);
-  }
-
-  return sub;
-}
-
-export function updateSubscriptionStatus(id: string, status: SubscriptionStatus): Subscription | null {
-  const subs = getTable<Subscription>('subscriptions');
-  const idx = subs.findIndex(s => s.id === id);
-  if (idx === -1) return null;
-  subs[idx] = { ...subs[idx], status, auto_renew: status === 'active' ? subs[idx].auto_renew : false, updated_at: new Date().toISOString() };
-  setTable('subscriptions', subs);
-  return { ...subs[idx] };
-}
-
-export function toggleAutoRenew(id: string): Subscription | null {
-  const subs = getTable<Subscription>('subscriptions');
-  const idx = subs.findIndex(s => s.id === id);
-  if (idx === -1) return null;
-  subs[idx].auto_renew = !subs[idx].auto_renew;
-  subs[idx].updated_at = new Date().toISOString();
-  setTable('subscriptions', subs);
-  return { ...subs[idx] };
-}
-
-// --- INVOICES ---
-export function getInvoicesByUser(userId: string): Invoice[] {
-  const invoices = getTable<Invoice>('invoices').filter(i => i.user_id === userId);
-  const subs = getTable<Subscription>('subscriptions');
-  const plans = getTable<Plan>('plans');
-  const services = getTable<Service>('services');
-  return invoices.map(inv => {
-    const sub = subs.find(s => s.id === inv.subscription_id);
-    const plan = sub ? plans.find(p => p.id === sub.plan_id) : null;
-    const service = plan ? services.find(s => s.id === plan.service_id) : null;
-    return {
-      ...inv,
-      plan_name: plan?.name || 'Unknown',
-      service_name: service?.name || 'Unknown',
-    };
-  }).sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-}
-
-export function getAllInvoices(): Invoice[] {
-  const invoices = getTable<Invoice>('invoices');
-  const subs = getTable<Subscription>('subscriptions');
-  const plans = getTable<Plan>('plans');
-  const services = getTable<Service>('services');
-  const users = getTable<User>('users');
-  return invoices.map(inv => {
-    const sub = subs.find(s => s.id === inv.subscription_id);
-    const plan = sub ? plans.find(p => p.id === sub.plan_id) : null;
-    const service = plan ? services.find(s => s.id === plan.service_id) : null;
-    const user = users.find(u => u.id === inv.user_id);
-    return {
-      ...inv,
-      plan_name: plan?.name || 'Unknown',
-      service_name: service?.name || 'Unknown',
-      user_email: user?.email || 'Unknown',
-    };
-  }).sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-}
-
-export function updateInvoiceStatus(id: string, status: PaymentStatus): Invoice | null {
-  const invoices = getTable<Invoice>('invoices');
-  const idx = invoices.findIndex(i => i.id === id);
-  if (idx === -1) return null;
-  invoices[idx].status = status;
-  invoices[idx].paid_at = status === 'paid' ? new Date().toISOString() : invoices[idx].paid_at;
-  setTable('invoices', invoices);
-  return { ...invoices[idx] };
-}
-
-// --- SUPPORT TICKETS ---
-export function getTicketsByUser(userId: string): SupportTicket[] {
-  const tickets = getTable<SupportTicket>('support_tickets').filter(t => t.user_id === userId);
-  const users = getTable<User>('users');
-  return tickets.map(t => {
-    const user = users.find(u => u.id === t.user_id);
-    const admin = t.assigned_to ? users.find(u => u.id === t.assigned_to) : null;
-    return { ...t, user_email: user?.email, user_name: user ? `${user.first_name} ${user.last_name}` : '', admin_name: admin ? `${admin.first_name} ${admin.last_name}` : undefined };
-  }).sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-}
-
-export function getAllTickets(): SupportTicket[] {
-  const tickets = getTable<SupportTicket>('support_tickets');
-  const users = getTable<User>('users');
-  return tickets.map(t => {
-    const user = users.find(u => u.id === t.user_id);
-    const admin = t.assigned_to ? users.find(u => u.id === t.assigned_to) : null;
-    return { ...t, user_email: user?.email, user_name: user ? `${user.first_name} ${user.last_name}` : '', admin_name: admin ? `${admin.first_name} ${admin.last_name}` : undefined };
-  }).sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-}
-
-export function createTicket(userId: string, data: { subject: string; description: string; category: string; priority: 'low' | 'medium' | 'high' | 'critical' }): SupportTicket {
-  const tickets = getTable<SupportTicket>('support_tickets');
-  const ticket: SupportTicket = {
-    id: uid(),
-    user_id: userId,
-    subject: data.subject,
-    description: data.description,
-    status: 'open',
-    priority: data.priority,
-    category: data.category,
-    assigned_to: null,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  };
-  tickets.push(ticket);
-  setTable('support_tickets', tickets);
-  return ticket;
-}
-
-export function updateTicket(id: string, data: Partial<SupportTicket>): SupportTicket | null {
-  const tickets = getTable<SupportTicket>('support_tickets');
-  const idx = tickets.findIndex(t => t.id === id);
-  if (idx === -1) return null;
-  tickets[idx] = { ...tickets[idx], ...data, updated_at: new Date().toISOString() };
-  setTable('support_tickets', tickets);
-  return { ...tickets[idx] };
-}
-
-// --- TICKET MESSAGES ---
-export function getMessagesByTicket(ticketId: string): TicketMessage[] {
-  const messages = getTable<TicketMessage>('ticket_messages').filter(m => m.ticket_id === ticketId);
-  const users = getTable<User>('users');
-  return messages.map(m => {
-    const user = users.find(u => u.id === m.sender_id);
-    return { ...m, sender_name: user ? `${user.first_name} ${user.last_name}` : 'Unknown' };
-  }).sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
-}
-
-export function addTicketMessage(ticketId: string, senderId: string, senderRole: UserRole, message: string): TicketMessage {
-  const messages = getTable<TicketMessage>('ticket_messages');
-  const msg: TicketMessage = {
-    id: uid(),
-    ticket_id: ticketId,
-    sender_id: senderId,
-    sender_role: senderRole,
-    message,
-    attachments: [],
-    created_at: new Date().toISOString(),
-  };
-  messages.push(msg);
-  setTable('ticket_messages', messages);
-  return msg;
-}
-
-// --- ANALYTICS ---
-export function getAdminDashboardStats(): DashboardStats {
-  const users = getTable<User>('users');
-  const subs = getTable<Subscription>('subscriptions');
-  const services = getTable<Service>('services');
-  const tickets = getTable<SupportTicket>('support_tickets');
-
-  const activeSubs = subs.filter(s => s.status === 'active');
-  const plans = getTable<Plan>('plans');
-
-  const monthlyRevenue = activeSubs.reduce((sum, sub) => {
-    const plan = plans.find(p => p.id === sub.plan_id);
-    return sum + (plan?.price || 0);
-  }, 0);
-
-  const now = new Date();
-  const thisMonth = now.getMonth();
-  const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1).getMonth();
-  const newUsersThisMonth = users.filter(u => new Date(u.created_at).getMonth() === thisMonth).length;
-  const lastMonthUsers = users.filter(u => new Date(u.created_at).getMonth() === lastMonth).length;
-  void users; void lastMonthUsers;
-
-  const totalSubs = subs.length;
-  const cancelledSubs = subs.filter(s => s.status === 'cancelled').length;
-  const churnRate = totalSubs > 0 ? (cancelledSubs / totalSubs) * 100 : 0;
-
-  const lastMonthRevenue = monthlyRevenue * 0.88;
-  const revenueGrowth = lastMonthRevenue > 0 ? ((monthlyRevenue - lastMonthRevenue) / lastMonthRevenue) * 100 : 0;
-
-  return {
-    total_users: users.filter(u => u.role === 'user').length,
-    active_subscriptions: activeSubs.length,
-    monthly_revenue: +monthlyRevenue.toFixed(2),
-    total_services: services.length,
-    pending_tickets: tickets.filter(t => t.status === 'open').length,
-    churn_rate: +churnRate.toFixed(1),
-    revenue_growth: +revenueGrowth.toFixed(1),
-    new_users_this_month: newUsersThisMonth,
-  };
-}
-
-export function getRevenueChartData(): ChartDataPoint[] {
-  const invoices = getTable<Invoice>('invoices');
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  const now = new Date();
-
-  return months.slice(0, now.getMonth() + 1).map((name, i) => {
-    const monthInvoices = invoices.filter(inv => {
-      const d = new Date(inv.created_at);
-      return d.getMonth() === i && d.getFullYear() === now.getFullYear();
+export async function verifyOTP(email: string, code: string): Promise<{ valid: boolean; error?: string }> {
+  try {
+    return await apiFetch<{ valid: boolean; error?: string }>('/auth/otp/verify', {
+      method: 'POST',
+      body: JSON.stringify({ email, code }),
     });
-    return {
-      name,
-      revenue: +monthInvoices.reduce((s, inv) => s + (inv.status === 'paid' ? inv.total : 0), 0).toFixed(2),
-    };
+  } catch (err: any) {
+    return { valid: false, error: err.message };
+  }
+}
+
+export async function markUserVerified(email: string): Promise<void> {
+  await apiFetch<void>('/auth/verify', {
+    method: 'POST',
+    body: JSON.stringify({ email }),
   });
 }
 
-export function getUserGrowthChartData(): ChartDataPoint[] {
-  const users = getTable<User>('users');
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  const now = new Date();
-  let cumulative = 1; // admin
+export async function checkEmailExists(email: string): Promise<boolean> {
+  const { exists } = await apiFetch<{ exists: boolean }>(`/auth/check-email?email=${encodeURIComponent(email)}`);
+  return exists;
+}
 
-  return months.slice(0, now.getMonth() + 1).map((name, i) => {
-    const monthUsers = users.filter(u => {
-      const d = new Date(u.created_at);
-      return d.getMonth() === i && d.getFullYear() === now.getFullYear();
-    }).length;
-    cumulative += monthUsers;
-    return { name, users: cumulative };
+export async function resetPassword(email: string, newPassword: string): Promise<boolean> {
+  try {
+    await apiFetch<void>('/auth/reset-password', {
+      method: 'POST',
+      body: JSON.stringify({ email, newPassword }),
+    });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// ====================================================================
+// USERS FUNCTIONS
+// ====================================================================
+
+export async function getAllUsers(): Promise<User[]> {
+  return apiFetch<User[]>('/users');
+}
+
+export async function getUserById(id: string): Promise<User | null> {
+  try {
+    return await apiFetch<User>(`/users/${id}`);
+  } catch {
+    return null;
+  }
+}
+
+export async function updateUser(id: string, data: Partial<User>): Promise<User | null> {
+  try {
+    return await apiFetch<User>(`/users/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  } catch {
+    return null;
+  }
+}
+
+export async function deleteUser(id: string): Promise<boolean> {
+  try {
+    await apiFetch<void>(`/users/${id}`, { method: 'DELETE' });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// ====================================================================
+// SERVICES FUNCTIONS
+// ====================================================================
+
+export async function getAllServices(): Promise<Service[]> {
+  return apiFetch<Service[]>('/services');
+}
+
+export async function getServiceById(id: string): Promise<Service | null> {
+  try {
+    return await apiFetch<Service>(`/services/${id}`);
+  } catch {
+    return null;
+  }
+}
+
+export async function createService(data: Omit<Service, 'id' | 'created_at' | 'updated_at'>): Promise<Service> {
+  return apiFetch<Service>('/services', {
+    method: 'POST',
+    body: JSON.stringify(data),
   });
 }
 
-export function getSubscriptionChartData(): ChartDataPoint[] {
-  const subs = getTable<Subscription>('subscriptions');
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  const now = new Date();
+export async function updateService(id: string, data: Partial<Service>): Promise<Service | null> {
+  try {
+    return await apiFetch<Service>(`/services/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  } catch {
+    return null;
+  }
+}
 
-  return months.slice(0, now.getMonth() + 1).map((name, i) => {
-    const monthSubs = subs.filter(s => {
-      const d = new Date(s.created_at);
-      return d.getMonth() === i && d.getFullYear() === now.getFullYear();
-    }).length;
-    return { name, subscriptions: monthSubs };
+export async function deleteService(id: string): Promise<boolean> {
+  try {
+    await apiFetch<void>(`/services/${id}`, { method: 'DELETE' });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// ====================================================================
+// PLANS FUNCTIONS
+// ====================================================================
+
+export async function getAllPlans(): Promise<Plan[]> {
+  return apiFetch<Plan[]>('/plans');
+}
+
+export async function getPlansByService(serviceId: string): Promise<Plan[]> {
+  return apiFetch<Plan[]>(`/plans?serviceId=${encodeURIComponent(serviceId)}`);
+}
+
+export async function getPlanById(id: string): Promise<Plan | null> {
+  try {
+    return await apiFetch<Plan>(`/plans/${id}`);
+  } catch {
+    return null;
+  }
+}
+
+export async function createPlan(data: Omit<Plan, 'id' | 'created_at' | 'updated_at'>): Promise<Plan> {
+  return apiFetch<Plan>('/plans', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function updatePlan(id: string, data: Partial<Plan>): Promise<Plan | null> {
+  try {
+    return await apiFetch<Plan>(`/plans/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  } catch {
+    return null;
+  }
+}
+
+export async function deletePlan(id: string): Promise<boolean> {
+  try {
+    await apiFetch<void>(`/plans/${id}`, { method: 'DELETE' });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// ====================================================================
+// SUBSCRIPTIONS FUNCTIONS
+// ====================================================================
+
+export async function getSubscriptionsByUser(userId: string): Promise<Subscription[]> {
+  return apiFetch<Subscription[]>(`/users/${userId}/subscriptions`);
+}
+
+export async function getAllSubscriptions(): Promise<Subscription[]> {
+  return apiFetch<Subscription[]>('/subscriptions');
+}
+
+export async function createSubscription(userId: string, planId: string): Promise<Subscription> {
+  return apiFetch<Subscription>('/subscriptions', {
+    method: 'POST',
+    body: JSON.stringify({ userId, planId }),
+  });
+}
+
+export async function updateSubscriptionStatus(id: string, status: SubscriptionStatus): Promise<Subscription | null> {
+  try {
+    return await apiFetch<Subscription>(`/subscriptions/${id}/status`, {
+      method: 'PUT',
+      body: JSON.stringify({ status }),
+    });
+  } catch {
+    return null;
+  }
+}
+
+export async function toggleAutoRenew(id: string): Promise<Subscription | null> {
+  try {
+    return await apiFetch<Subscription>(`/subscriptions/${id}/toggle-renew`, {
+      method: 'PUT',
+    });
+  } catch {
+    return null;
+  }
+}
+
+// ====================================================================
+// INVOICES FUNCTIONS
+// ====================================================================
+
+export async function getInvoicesByUser(userId: string): Promise<Invoice[]> {
+  return apiFetch<Invoice[]>(`/users/${userId}/invoices`);
+}
+
+export async function getAllInvoices(): Promise<Invoice[]> {
+  return apiFetch<Invoice[]>('/invoices');
+}
+
+export async function updateInvoiceStatus(id: string, status: PaymentStatus): Promise<Invoice | null> {
+  try {
+    return await apiFetch<Invoice>(`/invoices/${id}/status`, {
+      method: 'PUT',
+      body: JSON.stringify({ status }),
+    });
+  } catch {
+    return null;
+  }
+}
+
+// ====================================================================
+// SUPPORT TICKETS FUNCTIONS
+// ====================================================================
+
+export async function getTicketsByUser(userId: string): Promise<SupportTicket[]> {
+  return apiFetch<SupportTicket[]>(`/users/${userId}/tickets`);
+}
+
+export async function getAllTickets(): Promise<SupportTicket[]> {
+  return apiFetch<SupportTicket[]>('/tickets');
+}
+
+export async function createTicket(userId: string, data: {
+  subject: string; description: string; category: string; priority: 'low' | 'medium' | 'high' | 'critical'
+}): Promise<SupportTicket> {
+  return apiFetch<SupportTicket>('/tickets', {
+    method: 'POST',
+    body: JSON.stringify({ userId, ...data }),
+  });
+}
+
+export async function updateTicket(id: string, data: Partial<SupportTicket>): Promise<SupportTicket | null> {
+  try {
+    return await apiFetch<SupportTicket>(`/tickets/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  } catch {
+    return null;
+  }
+}
+
+// ====================================================================
+// TICKET MESSAGES FUNCTIONS
+// ====================================================================
+
+export async function getMessagesByTicket(ticketId: string): Promise<TicketMessage[]> {
+  return apiFetch<TicketMessage[]>(`/tickets/${ticketId}/messages`);
+}
+
+export async function addTicketMessage(ticketId: string, senderId: string, senderRole: UserRole, message: string): Promise<TicketMessage> {
+  return apiFetch<TicketMessage>(`/tickets/${ticketId}/messages`, {
+    method: 'POST',
+    body: JSON.stringify({ senderId, senderRole, message }),
   });
 }
 
 // ====================================================================
-// PAYMENT METHODS
+// ANALYTICS & DASHBOARD FUNCTIONS
 // ====================================================================
 
-export function getPaymentMethods(userId: string): PaymentMethod[] {
-  return getTable<PaymentMethod>('payment_methods').filter(pm => pm.user_id === userId);
+export async function getAdminDashboardStats(): Promise<DashboardStats> {
+  return apiFetch<DashboardStats>('/analytics/dashboard');
 }
 
-export function addPaymentMethod(userId: string, data: {
+export async function getRevenueChartData(): Promise<ChartDataPoint[]> {
+  return apiFetch<ChartDataPoint[]>('/analytics/revenue');
+}
+
+export async function getUserGrowthChartData(): Promise<ChartDataPoint[]> {
+  return apiFetch<ChartDataPoint[]>('/analytics/user-growth');
+}
+
+export async function getSubscriptionChartData(): Promise<ChartDataPoint[]> {
+  return apiFetch<ChartDataPoint[]>('/analytics/subscriptions');
+}
+
+// ====================================================================
+// PAYMENT METHODS FUNCTIONS
+// ====================================================================
+
+export async function getPaymentMethods(userId: string): Promise<PaymentMethod[]> {
+  return apiFetch<PaymentMethod[]>(`/users/${userId}/payment-methods`);
+}
+
+export async function addPaymentMethod(userId: string, data: {
   type: 'card' | 'paypal' | 'bank_transfer';
   label: string;
   last4?: string;
@@ -634,57 +407,41 @@ export function addPaymentMethod(userId: string, data: {
   expiry_year?: number;
   holder_name?: string;
   is_default?: boolean;
-}): PaymentMethod {
-  const methods = getTable<PaymentMethod>('payment_methods');
-  const newMethod: PaymentMethod = {
-    id: uid(),
-    user_id: userId,
-    type: data.type,
-    label: data.label,
-    is_default: data.is_default ?? methods.filter(m => m.user_id === userId).length === 0,
-    last4: data.last4,
-    brand: data.brand,
-    expiry_month: data.expiry_month,
-    expiry_year: data.expiry_year,
-    holder_name: data.holder_name,
-    created_at: new Date().toISOString(),
-  };
-  if (newMethod.is_default) {
-    const updated = methods.map(m => m.user_id === userId ? { ...m, is_default: false } : m);
-    updated.push(newMethod);
-    setTable('payment_methods', updated);
-  } else {
-    methods.push(newMethod);
-    setTable('payment_methods', methods);
+}): Promise<PaymentMethod> {
+  return apiFetch<PaymentMethod>(`/users/${userId}/payment-methods`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function deletePaymentMethod(id: string): Promise<boolean> {
+  try {
+    await apiFetch<void>(`/payment-methods/${id}`, { method: 'DELETE' });
+    return true;
+  } catch {
+    return false;
   }
-  return newMethod;
 }
 
-export function deletePaymentMethod(id: string): boolean {
-  const methods = getTable<PaymentMethod>('payment_methods');
-  const filtered = methods.filter(m => m.id !== id);
-  if (filtered.length === methods.length) return false;
-  setTable('payment_methods', filtered);
-  return true;
+export async function setDefaultPaymentMethod(userId: string, methodId: string): Promise<void> {
+  await apiFetch<void>(`/users/${userId}/payment-methods/${methodId}/default`, {
+    method: 'PUT',
+  });
 }
 
-export function setDefaultPaymentMethod(userId: string, methodId: string): void {
-  const methods = getTable<PaymentMethod>('payment_methods');
-  setTable('payment_methods', methods.map(m => ({
-    ...m,
-    is_default: m.user_id === userId && m.id === methodId,
-  })));
-}
-
-export function getDefaultPaymentMethod(userId: string): PaymentMethod | null {
-  return getTable<PaymentMethod>('payment_methods').find(m => m.user_id === userId && m.is_default) || null;
+export async function getDefaultPaymentMethod(userId: string): Promise<PaymentMethod | null> {
+  try {
+    return await apiFetch<PaymentMethod>(`/users/${userId}/payment-methods/default`);
+  } catch {
+    return null;
+  }
 }
 
 // ====================================================================
-// PROCESS PAYMENT — Full realistic flow
+// PROCESS PAYMENT FUNCTIONS
 // ====================================================================
 
-export function processPayment(userId: string, invoiceId: string, paymentDetails: {
+export async function processPayment(userId: string, invoiceId: string, paymentDetails: {
   method: string;
   method_type: 'card' | 'paypal' | 'bank_transfer';
   card_brand?: string;
@@ -695,245 +452,85 @@ export function processPayment(userId: string, invoiceId: string, paymentDetails
   billing_state?: string;
   billing_zip?: string;
   billing_country?: string;
-}): Payment {
-  const invoices = getTable<Invoice>('invoices');
-  const inv = invoices.find(i => i.id === invoiceId);
-  const now = new Date();
-
-  const payment: Payment = {
-    id: uid(),
-    invoice_id: invoiceId,
-    user_id: userId,
-    amount: inv?.amount || 0,
-    tax: inv?.tax || 0,
-    discount: inv?.discount || 0,
-    total: inv?.total || 0,
-    method: paymentDetails.method,
-    method_type: paymentDetails.method_type,
-    card_brand: paymentDetails.card_brand,
-    card_last4: paymentDetails.card_last4,
-    card_holder: paymentDetails.card_holder,
-    transaction_id: `TXN-${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}-${uid().slice(0, 10).toUpperCase()}`,
-    status: 'paid',
-    paid_at: now.toISOString(),
-    billing_address: paymentDetails.billing_address,
-    billing_city: paymentDetails.billing_city,
-    billing_state: paymentDetails.billing_state,
-    billing_zip: paymentDetails.billing_zip,
-    billing_country: paymentDetails.billing_country,
-    created_at: now.toISOString(),
-  };
-
-  const payments = getTable<Payment>('payments');
-  payments.push(payment);
-  setTable('payments', payments);
-
-  // Update invoice status
-  const idx = invoices.findIndex(i => i.id === invoiceId);
-  if (idx !== -1) {
-    invoices[idx].status = 'paid';
-    invoices[idx].paid_at = now.toISOString();
-    setTable('invoices', invoices);
-  }
-
-  return payment;
-}
-
-// --- REFUND PAYMENT ---
-export function refundPayment(paymentId: string, reason: string, adminId: string): Payment | null {
-  const payments = getTable<Payment>('payments');
-  const idx = payments.findIndex(p => p.id === paymentId);
-  if (idx === -1) return null;
-
-  const now = new Date();
-  payments[idx] = {
-    ...payments[idx],
-    status: 'refunded',
-    refund_reason: reason,
-    refunded_at: now.toISOString(),
-    refunded_by: adminId,
-  };
-  setTable('payments', payments);
-
-  // Also update the linked invoice
-  const invoices = getTable<Invoice>('invoices');
-  const invIdx = invoices.findIndex(i => i.id === payments[idx].invoice_id);
-  if (invIdx !== -1) {
-    invoices[invIdx].status = 'refunded';
-    setTable('invoices', invoices);
-  }
-
-  return { ...payments[idx] };
-}
-
-// ====================================================================
-// GET PAYMENTS — Joined with user, service, plan info
-// ====================================================================
-
-function enrichPayment(p: Payment): Payment {
-  const invoices = getTable<Invoice>('invoices');
-  const subs = getTable<Subscription>('subscriptions');
-  const plans = getTable<Plan>('plans');
-  const services = getTable<Service>('services');
-  const users = getTable<User>('users');
-
-  const inv = invoices.find(i => i.id === p.invoice_id);
-  const sub = inv ? subs.find(s => s.id === inv.subscription_id) : undefined;
-  const plan = sub ? plans.find(pl => pl.id === sub.plan_id) : undefined;
-  const svc = plan ? services.find(s => s.id === plan.service_id) : undefined;
-  const usr = users.find(u => u.id === p.user_id);
-
-  return {
-    ...p,
-    plan_name: plan?.name,
-    service_name: svc?.name,
-    service_id: svc?.id,
-    invoice_number: inv?.invoice_number,
-    user_email: usr?.email,
-    user_name: usr ? `${usr.first_name} ${usr.last_name}` : undefined,
-  };
-}
-
-export function getPaymentsByUser(userId: string): Payment[] {
-  return getTable<Payment>('payments')
-    .filter(p => p.user_id === userId)
-    .map(enrichPayment)
-    .sort((a, b) => new Date(b.paid_at).getTime() - new Date(a.paid_at).getTime());
-}
-
-export function getAllPayments(): Payment[] {
-  return getTable<Payment>('payments')
-    .map(enrichPayment)
-    .sort((a, b) => new Date(b.paid_at).getTime() - new Date(a.paid_at).getTime());
-}
-
-export function getPaymentById(id: string): Payment | null {
-  const p = getTable<Payment>('payments').find(p => p.id === id);
-  return p ? enrichPayment(p) : null;
-}
-
-// ====================================================================
-// PAYMENT STATS — For admin analytics
-// ====================================================================
-
-export function getPaymentStats(): PaymentStats {
-  const payments = getTable<Payment>('payments');
-  const now = new Date();
-  const today = now.toISOString().split('T')[0];
-  const weekAgo = new Date(now.getTime() - 7 * 86400000).toISOString().split('T')[0];
-  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
-
-  const paid = payments.filter(p => p.status === 'paid');
-  const refunded = payments.filter(p => p.status === 'refunded');
-
-  const totalCollected = paid.reduce((s, p) => s + p.total, 0);
-  const totalRefunded = refunded.reduce((s, p) => s + p.total, 0);
-  const pendingInvoices = getTable<Invoice>('invoices').filter(i => i.status === 'pending');
-  const totalPending = pendingInvoices.reduce((s, i) => s + i.total, 0);
-
-  const byMethod: Record<string, { count: number; total: number }> = {};
-  const byBrand: Record<string, { count: number; total: number }> = {};
-
-  paid.forEach(p => {
-    const mk = p.method_type;
-    if (!byMethod[mk]) byMethod[mk] = { count: 0, total: 0 };
-    byMethod[mk].count++;
-    byMethod[mk].total += p.total;
-
-    if (p.card_brand) {
-      if (!byBrand[p.card_brand]) byBrand[p.card_brand] = { count: 0, total: 0 };
-      byBrand[p.card_brand].count++;
-      byBrand[p.card_brand].total += p.total;
-    }
+}): Promise<Payment> {
+  return apiFetch<Payment>('/payments', {
+    method: 'POST',
+    body: JSON.stringify({ userId, invoiceId, paymentDetails }),
   });
+}
 
-  // Daily revenue for last 14 days
-  const dailyRevenue: { date: string; amount: number; count: number }[] = [];
-  for (let i = 13; i >= 0; i--) {
-    const d = new Date(now.getTime() - i * 86400000);
-    const dateStr = d.toISOString().split('T')[0];
-    const dayPayments = paid.filter(p => p.paid_at.split('T')[0] === dateStr);
-    dailyRevenue.push({
-      date: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-      amount: +dayPayments.reduce((s, p) => s + p.total, 0).toFixed(2),
-      count: dayPayments.length,
+export async function refundPayment(paymentId: string, reason: string, adminId: string): Promise<Payment | null> {
+  try {
+    return await apiFetch<Payment>(`/payments/${paymentId}/refund`, {
+      method: 'POST',
+      body: JSON.stringify({ reason, adminId }),
     });
+  } catch {
+    return null;
   }
-
-  return {
-    total_collected: +totalCollected.toFixed(2),
-    total_pending: +totalPending.toFixed(2),
-    total_refunded: +totalRefunded.toFixed(2),
-    successful_payments: paid.length,
-    failed_payments: payments.filter(p => p.status === 'failed').length,
-    avg_transaction: paid.length > 0 ? +(totalCollected / paid.length).toFixed(2) : 0,
-    today_revenue: +paid.filter(p => p.paid_at.split('T')[0] === today).reduce((s, p) => s + p.total, 0).toFixed(2),
-    this_week_revenue: +paid.filter(p => p.paid_at.split('T')[0] >= weekAgo).reduce((s, p) => s + p.total, 0).toFixed(2),
-    this_month_revenue: +paid.filter(p => p.paid_at.split('T')[0] >= monthStart).reduce((s, p) => s + p.total, 0).toFixed(2),
-    by_method: Object.entries(byMethod).map(([method, data]) => ({ method, ...data })),
-    by_brand: Object.entries(byBrand).map(([brand, data]) => ({ brand, ...data })),
-    daily_revenue: dailyRevenue,
-  };
 }
 
-export function getCategoryDistribution(): { name: string; value: number }[] {
-  const subs = getTable<Subscription>('subscriptions').filter(s => s.status === 'active');
-  const plans = getTable<Plan>('plans');
-  const services = getTable<Service>('services');
+export async function getPaymentsByUser(userId: string): Promise<Payment[]> {
+  return apiFetch<Payment[]>(`/users/${userId}/payments`);
+}
 
-  const catMap: Record<string, number> = {};
-  subs.forEach(sub => {
-    const plan = plans.find(p => p.id === sub.plan_id);
-    if (plan) {
-      const svc = services.find(s => s.id === plan.service_id);
-      if (svc) {
-        catMap[svc.category] = (catMap[svc.category] || 0) + 1;
-      }
-    }
-  });
+export async function getAllPayments(): Promise<Payment[]> {
+  return apiFetch<Payment[]>('/payments');
+}
 
-  return Object.entries(catMap).map(([name, value]) => ({ name, value }));
+export async function getPaymentById(id: string): Promise<Payment | null> {
+  try {
+    return await apiFetch<Payment>(`/payments/${id}`);
+  } catch {
+    return null;
+  }
+}
+
+export async function getPaymentStats(): Promise<PaymentStats> {
+  return apiFetch<PaymentStats>('/analytics/payment-stats');
+}
+
+export async function getCategoryDistribution(): Promise<{ name: string; value: number }[]> {
+  return apiFetch<{ name: string; value: number }[]>('/analytics/category-distribution');
 }
 
 // ====================================================================
-// NOTIFICATIONS — Real-time notification system
+// NOTIFICATIONS FUNCTIONS
 // ====================================================================
 
-export function createNotification(userId: string, data: {
+export async function createNotification(userId: string, data: {
   title: string; message: string; type: 'info' | 'success' | 'warning' | 'error';
-}): Notification {
-  const notifs = getTable<Notification>('notifications');
-  const n: Notification = {
-    id: uid(), user_id: userId, ...data, read: false, created_at: new Date().toISOString(),
-  };
-  notifs.unshift(n);
-  setTable('notifications', notifs);
-  return n;
+}): Promise<Notification> {
+  return apiFetch<Notification>('/notifications', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
 }
 
-export function getNotifications(userId: string): Notification[] {
-  return getTable<Notification>('notifications')
-    .filter(n => n.user_id === userId)
-    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+export async function getNotifications(userId: string): Promise<Notification[]> {
+  return apiFetch<Notification[]>(`/users/${userId}/notifications`);
 }
 
-export function markNotificationRead(id: string): void {
-  const notifs = getTable<Notification>('notifications');
-  const idx = notifs.findIndex(n => n.id === id);
-  if (idx !== -1) { notifs[idx].read = true; setTable('notifications', notifs); }
+export async function markNotificationRead(id: string): Promise<void> {
+  await apiFetch<void>(`/notifications/${id}/read`, {
+    method: 'PUT',
+  });
 }
 
-export function markAllNotificationsRead(userId: string): void {
-  const notifs = getTable<Notification>('notifications');
-  setTable('notifications', notifs.map(n => n.user_id === userId ? { ...n, read: true } : n));
+export async function markAllNotificationsRead(userId: string): Promise<void> {
+  await apiFetch<void>(`/users/${userId}/notifications/read-all`, {
+    method: 'PUT',
+  });
 }
 
-export function clearNotifications(userId: string): void {
-  setTable('notifications', getTable<Notification>('notifications').filter(n => n.user_id !== userId));
+export async function clearNotifications(userId: string): Promise<void> {
+  await apiFetch<void>(`/users/${userId}/notifications`, {
+    method: 'DELETE',
+  });
 }
 
 // ====================================================================
-// AUDIT LOG — Activity trail
+// AUDIT LOGS FUNCTIONS
 // ====================================================================
 
 export interface AuditEntry {
@@ -942,40 +539,23 @@ export interface AuditEntry {
   details: string; ip_address: string; created_at: string;
 }
 
-export function addAuditLog(userId: string, action: string, entityType: string, entityId: string, details: string): void {
-  const logs = getTable<Record<string, string>>('audit_logs');
-  const user = getUserById(userId);
-  logs.unshift({
-    id: uid(), user_id: userId,
-    user_name: user ? `${user.first_name} ${user.last_name}` : 'System',
-    user_email: user?.email || 'system',
-    action, entity_type: entityType, entity_id: entityId, details,
-    ip_address: '192.168.1.' + Math.floor(Math.random() * 255),
-    created_at: new Date().toISOString(),
+export async function addAuditLog(userId: string, action: string, entityType: string, entityId: string, details: string): Promise<void> {
+  await apiFetch<void>('/audit-logs', {
+    method: 'POST',
+    body: JSON.stringify({ userId, action, entityType, entityId, details }),
   });
-  // Keep last 200 entries
-  if (logs.length > 200) setTable('audit_logs', logs.slice(0, 200));
-  else setTable('audit_logs', logs);
 }
 
-export function getAuditLogs(): AuditEntry[] {
-  const logs = getTable<Record<string, string>>('audit_logs');
-  return logs.map(l => ({
-    id: l.id, user_id: l.user_id,
-    user_name: l.user_name || 'Unknown', user_email: l.user_email || '',
-    action: l.action, entity_type: l.entity_type,
-    entity_name: l.entity_id,
-    details: l.details, ip_address: l.ip_address,
-    created_at: l.created_at,
-  }));
+export async function getAuditLogs(): Promise<AuditEntry[]> {
+  return apiFetch<AuditEntry[]>('/audit-logs');
 }
 
-export function getUserActivityLog(userId: string): AuditEntry[] {
-  return getAuditLogs().filter(l => l.user_id === userId).slice(0, 50);
+export async function getUserActivityLog(userId: string): Promise<AuditEntry[]> {
+  return apiFetch<AuditEntry[]>(`/users/${userId}/activity-log`);
 }
 
 // ====================================================================
-// SERVICE REVIEWS & RATINGS
+// SERVICE REVIEWS FUNCTIONS
 // ====================================================================
 
 export interface Review {
@@ -984,38 +564,31 @@ export interface Review {
   helpful: number; created_at: string;
 }
 
-export function addReview(userId: string, serviceId: string, rating: number, title: string, body: string): Review {
-  const reviews = getTable<Review>('reviews');
-  const user = getUserById(userId);
-  const rev: Review = {
-    id: uid(), user_id: userId, service_id: serviceId,
-    user_name: user ? `${user.first_name} ${user.last_name}` : 'Anonymous',
-    rating, title, body, helpful: 0, created_at: new Date().toISOString(),
-  };
-  reviews.push(rev);
-  setTable('reviews', reviews);
-  return rev;
+export async function addReview(userId: string, serviceId: string, rating: number, title: string, body: string): Promise<Review> {
+  return apiFetch<Review>('/reviews', {
+    method: 'POST',
+    body: JSON.stringify({ userId, serviceId, rating, title, body }),
+  });
 }
 
-export function getServiceReviews(serviceId: string): Review[] {
-  return getTable<Review>('reviews').filter(r => r.service_id === serviceId)
-    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+export async function getServiceReviews(serviceId: string): Promise<Review[]> {
+  return apiFetch<Review[]>(`/services/${serviceId}/reviews`);
 }
 
-export function getServiceRating(serviceId: string): { avg: number; count: number; distribution: number[] } {
-  const reviews = getServiceReviews(serviceId);
-  if (reviews.length === 0) return { avg: 0, count: 0, distribution: [0, 0, 0, 0, 0] };
-  const avg = reviews.reduce((s, r) => s + r.rating, 0) / reviews.length;
-  const distribution = [1, 2, 3, 4, 5].map(star => reviews.filter(r => r.rating === star).length);
-  return { avg: +avg.toFixed(1), count: reviews.length, distribution };
+export async function getServiceRating(serviceId: string): Promise<{ avg: number; count: number; distribution: number[] }> {
+  return apiFetch<{ avg: number; count: number; distribution: number[] }>(`/services/${serviceId}/rating`);
 }
 
-export function getUserReviewForService(userId: string, serviceId: string): Review | null {
-  return getTable<Review>('reviews').find(r => r.user_id === userId && r.service_id === serviceId) || null;
+export async function getUserReviewForService(userId: string, serviceId: string): Promise<Review | null> {
+  try {
+    return await apiFetch<Review>(`/users/${userId}/services/${serviceId}/reviews`);
+  } catch {
+    return null;
+  }
 }
 
 // ====================================================================
-// REFERRAL & CREDITS SYSTEM
+// REFERRAL FUNCTIONS
 // ====================================================================
 
 export interface ReferralInfo {
@@ -1023,23 +596,17 @@ export interface ReferralInfo {
   credits_balance: number; referrals: { email: string; status: string; date: string }[];
 }
 
-export function getReferralInfo(userId: string): ReferralInfo {
-  const refs = getTable<Record<string, string>>('referrals');
-  const mine = refs.filter(r => r.referrer_id === userId);
-  const user = getUserById(userId);
-  const code = user?.id ? `SUB-${user.id.slice(0, 6).toUpperCase()}` : 'SUB-NEW';
-  const earned = mine.length * 10;
-  return {
-    code, referred_count: mine.length,
-    credits_earned: earned, credits_used: 0, credits_balance: earned,
-    referrals: mine.map(r => ({ email: r.referred_email || '', status: r.status || 'pending', date: r.created_at || '' })),
-  };
+export async function getReferralInfo(userId: string): Promise<ReferralInfo> {
+  return apiFetch<ReferralInfo>(`/users/${userId}/referrals`);
 }
 
-export function applyReferralCode(code: string): boolean { return code.startsWith('SUB-'); }
+export async function applyReferralCode(code: string): Promise<boolean> {
+  const { valid } = await apiFetch<{ valid: boolean }>(`/referrals/check-code?code=${encodeURIComponent(code)}`);
+  return valid;
+}
 
 // ====================================================================
-// SYSTEM HEALTH STATUS
+// SYSTEM STATUS FUNCTIONS
 // ====================================================================
 
 export interface SystemStatus {
@@ -1049,57 +616,23 @@ export interface SystemStatus {
   incidents: { title: string; status: string; started: string; resolved: string | null; updates: { time: string; message: string }[] }[];
 }
 
-export function getSystemStatus(): SystemStatus {
-  return {
-    overall: 'operational', uptime30d: 99.97,
-    services: [
-      { name: 'API Gateway', status: 'operational', uptime: 99.99, latency: 12, lastIncident: null },
-      { name: 'Auth Service', status: 'operational', uptime: 99.98, latency: 8, lastIncident: '2025-01-10T10:00:00Z' },
-      { name: 'Billing Engine', status: 'operational', uptime: 99.95, latency: 25, lastIncident: '2025-01-08T14:30:00Z' },
-      { name: 'CDN', status: 'operational', uptime: 99.99, latency: 3, lastIncident: null },
-      { name: 'Database', status: 'operational', uptime: 99.97, latency: 5, lastIncident: '2024-12-28T06:00:00Z' },
-      { name: 'Email Service', status: 'operational', uptime: 99.92, latency: 45, lastIncident: '2025-01-05T09:15:00Z' },
-      { name: 'Webhooks', status: 'operational', uptime: 99.96, latency: 18, lastIncident: null },
-      { name: 'Storage', status: 'operational', uptime: 99.99, latency: 6, lastIncident: null },
-    ],
-    incidents: [
-      { title: 'Email delivery delays', status: 'resolved', started: '2025-01-05T09:15:00Z', resolved: '2025-01-05T11:45:00Z',
-        updates: [
-          { time: '2025-01-05T09:15:00Z', message: 'We are investigating delays in email delivery. Some transactional emails may be delayed.' },
-          { time: '2025-01-05T10:30:00Z', message: 'Issue identified. Our email provider is experiencing upstream problems.' },
-          { time: '2025-01-05T11:45:00Z', message: 'Email delivery has been restored. All queued emails have been sent.' },
-        ]},
-      { title: 'Database connection timeouts', status: 'resolved', started: '2024-12-28T06:00:00Z', resolved: '2024-12-28T07:20:00Z',
-        updates: [
-          { time: '2024-12-28T06:00:00Z', message: 'Increased database connection timeouts detected. Investigating.' },
-          { time: '2024-12-28T07:20:00Z', message: 'Connection pool has been scaled. All systems nominal.' },
-        ]},
-    ],
-  };
+export async function getSystemStatus(): Promise<SystemStatus> {
+  return apiFetch<SystemStatus>('/system/status');
 }
 
 // ====================================================================
-// ONBOARDING STATUS
+// ONBOARDING STATUS FUNCTIONS
 // ====================================================================
 
 export interface OnboardingStep {
   id: string; title: string; description: string; completed: boolean; link: string; icon: string;
 }
 
-export function getOnboardingSteps(userId: string): OnboardingStep[] {
-  const subs = getSubscriptionsByUser(userId);
-  const payments = getPaymentsByUser(userId);
-  const methods = getPaymentMethods(userId);
-  return [
-    { id: 'profile', title: 'Complete your profile', description: 'Add your name, phone, and billing address', completed: true, link: '/profile', icon: 'User' },
-    { id: 'subscribe', title: 'Subscribe to a service', description: 'Browse services and choose a plan that fits', completed: subs.length > 0, link: '/services', icon: 'CreditCard' },
-    { id: 'payment', title: 'Set up payment method', description: 'Add a card for automatic billing', completed: methods.length > 0, link: '/payment', icon: 'Wallet' },
-    { id: 'first_payment', title: 'Make your first payment', description: 'Complete your first billing cycle', completed: payments.length > 0, link: '/billing', icon: 'DollarSign' },
-    { id: 'support', title: 'Explore support center', description: 'Learn how to get help when you need it', completed: false, link: '/support', icon: 'LifeBuoy' },
-  ];
+export async function getOnboardingSteps(userId: string): Promise<OnboardingStep[]> {
+  return apiFetch<OnboardingStep[]>(`/users/${userId}/onboarding-steps`);
 }
 
-export function getOnboardingProgress(userId: string): number {
-  const steps = getOnboardingSteps(userId);
-  return Math.round((steps.filter(s => s.completed).length / steps.length) * 100);
+export async function getOnboardingProgress(userId: string): Promise<number> {
+  const { progress } = await apiFetch<{ progress: number }>(`/users/${userId}/onboarding-progress`);
+  return progress;
 }

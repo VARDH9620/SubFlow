@@ -76,8 +76,8 @@ interface OTPVerificationPageProps {
   title: string;
   subtitle: string;
   email: string;
-  onVerify: (code: string) => { valid: boolean; error?: string };
-  onResend: () => void;
+  onVerify: (code: string) => Promise<{ valid: boolean; error?: string }> | { valid: boolean; error?: string };
+  onResend: () => Promise<void> | void;
   onBack: () => void;
   icon?: ReactNode;
   successTitle?: string;
@@ -109,21 +109,30 @@ export function OTPVerificationPage({
     setError('');
 
     // Simulate network delay
-    await new Promise(r => setTimeout(r, 1200));
+    await new Promise(r => setTimeout(r, 600));
 
-    const result = onVerify(code);
-    if (!result.valid) {
-      setError(result.error || 'Invalid OTP');
+    try {
+      const result = await onVerify(code);
+      if (!result.valid) {
+        setError(result.error || 'Invalid OTP');
+        setVerifying(false);
+      }
+    } catch (err: any) {
+      setError(err instanceof Error ? err.message : 'Verification failed');
       setVerifying(false);
     }
   };
 
-  const handleResend = () => {
-    onResend();
-    setResendTimer(30);
-    setResendCount(c => c + 1);
-    setOtp(Array(6).fill(''));
-    setError('');
+  const handleResend = async () => {
+    try {
+      await onResend();
+      setResendTimer(30);
+      setResendCount(c => c + 1);
+      setOtp(Array(6).fill(''));
+      setError('');
+    } catch (err: any) {
+      setError(err instanceof Error ? err.message : 'Failed to resend OTP');
+    }
   };
 
   const maskedEmail = email.replace(/(.{2})(.*)(@.*)/, (_, a, b, c) => a + '*'.repeat(b.length) + c);
