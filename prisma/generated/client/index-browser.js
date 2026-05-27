@@ -123,31 +123,173 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
 exports.Prisma.UserScalarFieldEnum = {
   id: 'id',
   email: 'email',
+  password_hash: 'password_hash',
+  first_name: 'first_name',
+  last_name: 'last_name',
+  phone: 'phone',
+  avatar_url: 'avatar_url',
+  role: 'role',
+  is_verified: 'is_verified',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
+exports.Prisma.ServiceScalarFieldEnum = {
+  id: 'id',
   name: 'name',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  description: 'description',
+  category: 'category',
+  icon: 'icon',
+  status: 'status',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
 };
 
 exports.Prisma.PlanScalarFieldEnum = {
   id: 'id',
+  service_id: 'service_id',
   name: 'name',
+  description: 'description',
   price: 'price',
-  currency: 'currency',
-  interval: 'interval',
+  billing_cycle: 'billing_cycle',
   features: 'features',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  trial_days: 'trial_days',
+  status: 'status',
+  max_users: 'max_users',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
 };
 
 exports.Prisma.SubscriptionScalarFieldEnum = {
   id: 'id',
-  userId: 'userId',
-  planId: 'planId',
+  user_id: 'user_id',
+  plan_id: 'plan_id',
   status: 'status',
-  startDate: 'startDate',
-  endDate: 'endDate',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  start_date: 'start_date',
+  end_date: 'end_date',
+  trial_end: 'trial_end',
+  auto_renew: 'auto_renew',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
+exports.Prisma.InvoiceScalarFieldEnum = {
+  id: 'id',
+  subscription_id: 'subscription_id',
+  user_id: 'user_id',
+  amount: 'amount',
+  tax: 'tax',
+  discount: 'discount',
+  total: 'total',
+  status: 'status',
+  due_date: 'due_date',
+  paid_at: 'paid_at',
+  invoice_number: 'invoice_number',
+  created_at: 'created_at'
+};
+
+exports.Prisma.PaymentScalarFieldEnum = {
+  id: 'id',
+  invoice_id: 'invoice_id',
+  user_id: 'user_id',
+  amount: 'amount',
+  tax: 'tax',
+  discount: 'discount',
+  total: 'total',
+  method: 'method',
+  method_type: 'method_type',
+  card_brand: 'card_brand',
+  card_last4: 'card_last4',
+  card_holder: 'card_holder',
+  transaction_id: 'transaction_id',
+  status: 'status',
+  paid_at: 'paid_at',
+  refund_reason: 'refund_reason',
+  refunded_at: 'refunded_at',
+  refunded_by: 'refunded_by',
+  billing_address: 'billing_address',
+  billing_city: 'billing_city',
+  billing_state: 'billing_state',
+  billing_zip: 'billing_zip',
+  billing_country: 'billing_country',
+  created_at: 'created_at'
+};
+
+exports.Prisma.PaymentMethodScalarFieldEnum = {
+  id: 'id',
+  user_id: 'user_id',
+  type: 'type',
+  label: 'label',
+  is_default: 'is_default',
+  last4: 'last4',
+  brand: 'brand',
+  expiry_month: 'expiry_month',
+  expiry_year: 'expiry_year',
+  holder_name: 'holder_name',
+  created_at: 'created_at'
+};
+
+exports.Prisma.SupportTicketScalarFieldEnum = {
+  id: 'id',
+  user_id: 'user_id',
+  subject: 'subject',
+  description: 'description',
+  status: 'status',
+  priority: 'priority',
+  category: 'category',
+  assigned_to: 'assigned_to',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
+exports.Prisma.TicketMessageScalarFieldEnum = {
+  id: 'id',
+  ticket_id: 'ticket_id',
+  sender_id: 'sender_id',
+  sender_role: 'sender_role',
+  message: 'message',
+  attachments: 'attachments',
+  created_at: 'created_at'
+};
+
+exports.Prisma.NotificationScalarFieldEnum = {
+  id: 'id',
+  user_id: 'user_id',
+  title: 'title',
+  message: 'message',
+  type: 'type',
+  read: 'read',
+  created_at: 'created_at'
+};
+
+exports.Prisma.AuditLogScalarFieldEnum = {
+  id: 'id',
+  user_id: 'user_id',
+  action: 'action',
+  entity_type: 'entity_type',
+  entity_id: 'entity_id',
+  details: 'details',
+  ip_address: 'ip_address',
+  created_at: 'created_at'
+};
+
+exports.Prisma.ReviewScalarFieldEnum = {
+  id: 'id',
+  user_id: 'user_id',
+  service_id: 'service_id',
+  rating: 'rating',
+  title: 'title',
+  body: 'body',
+  helpful: 'helpful',
+  created_at: 'created_at'
+};
+
+exports.Prisma.ReferralScalarFieldEnum = {
+  id: 'id',
+  referrer_id: 'referrer_id',
+  referred_email: 'referred_email',
+  status: 'status',
+  created_at: 'created_at'
 };
 
 exports.Prisma.SortOrder = {
@@ -168,8 +310,18 @@ exports.Prisma.NullsOrder = {
 
 exports.Prisma.ModelName = {
   User: 'User',
+  Service: 'Service',
   Plan: 'Plan',
-  Subscription: 'Subscription'
+  Subscription: 'Subscription',
+  Invoice: 'Invoice',
+  Payment: 'Payment',
+  PaymentMethod: 'PaymentMethod',
+  SupportTicket: 'SupportTicket',
+  TicketMessage: 'TicketMessage',
+  Notification: 'Notification',
+  AuditLog: 'AuditLog',
+  Review: 'Review',
+  Referral: 'Referral'
 };
 
 /**
