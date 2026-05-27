@@ -18,36 +18,37 @@ export default function Subscriptions() {
   const [filter, setFilter] = useState<SubscriptionStatus | 'all'>('all');
   const [confirmAction, setConfirmAction] = useState<{ id: string; action: string } | null>(null);
 
-  const refresh = () => {
+  const refresh = async () => {
     if (!user) return;
-    setSubs(db.getSubscriptionsByUser(user.id));
+    const userSubs = await db.getSubscriptionsByUser(user.id);
+    setSubs(userSubs);
   };
 
   useEffect(() => { refresh(); }, [user]);
 
   const filtered = filter === 'all' ? subs : subs.filter(s => s.status === filter);
 
-  const handleAction = (id: string, action: string) => {
+  const handleAction = async (id: string, action: string) => {
     switch (action) {
       case 'pause':
-        db.updateSubscriptionStatus(id, 'paused');
+        await db.updateSubscriptionStatus(id, 'paused');
         addToast('Subscription paused', 'info');
         break;
       case 'resume':
-        db.updateSubscriptionStatus(id, 'active');
+        await db.updateSubscriptionStatus(id, 'active');
         addToast('Subscription resumed', 'success');
         break;
       case 'cancel':
-        db.updateSubscriptionStatus(id, 'cancelled');
+        await db.updateSubscriptionStatus(id, 'cancelled');
         addToast('Subscription cancelled', 'warning');
         break;
       case 'toggle_renew':
-        db.toggleAutoRenew(id);
+        await db.toggleAutoRenew(id);
         addToast('Auto-renew toggled', 'info');
         break;
     }
     setConfirmAction(null);
-    refresh();
+    await refresh();
   };
 
   const counts = {

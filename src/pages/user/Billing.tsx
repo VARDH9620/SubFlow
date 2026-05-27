@@ -16,7 +16,11 @@ export default function Billing() {
 
   useEffect(() => {
     if (!user) return;
-    setInvoices(db.getInvoicesByUser(user.id));
+    const load = async () => {
+      const list = await db.getInvoicesByUser(user.id);
+      setInvoices(list);
+    };
+    load();
   }, [user]);
 
   const tabs = [
@@ -37,9 +41,9 @@ export default function Billing() {
     navigate('/payment', { state: { invoice: inv } });
   };
 
-  const handleDownloadPDF = (inv: Invoice) => {
+  const handleDownloadPDF = async (inv: Invoice) => {
     // Get payment details if available
-    const payments = db.getPaymentsByUser(user?.id || '');
+    const payments = await db.getPaymentsByUser(user?.id || '');
     const payment = payments.find(p => p.invoice_id === inv.id);
     const filename = generateInvoicePDF(inv, payment);
     addToast(`Downloaded ${filename}`, 'success');

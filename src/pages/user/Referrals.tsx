@@ -11,7 +11,13 @@ export default function Referrals() {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    if (user) setInfo(db.getReferralInfo(user.id));
+    if (user) {
+      const load = async () => {
+        const referralInfo = await db.getReferralInfo(user.id);
+        setInfo(referralInfo);
+      };
+      load();
+    }
   }, [user]);
 
   if (!info) return null;

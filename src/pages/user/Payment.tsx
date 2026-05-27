@@ -89,17 +89,23 @@ export default function PaymentPage() {
   // ---- Load data ----
   useEffect(() => {
     if (!user) return;
-    const invoices = db.getInvoicesByUser(user.id).filter(i => i.status === 'pending');
-    setPendingInvoices(invoices);
-    const navInvoice = (location.state as { invoice?: Invoice })?.invoice;
-    if (navInvoice && navInvoice.status === 'pending') {
-      setSelectedInvoice(navInvoice);
-      setStep('method');
-    } else if (invoices.length > 0) {
-      setSelectedInvoice(invoices[0]);
-    }
-    setSavedMethods(db.getPaymentMethods(user.id));
-    setPaymentHistory(db.getPaymentsByUser(user.id));
+    const loadData = async () => {
+      const allInvoices = await db.getInvoicesByUser(user.id);
+      const invoices = allInvoices.filter(i => i.status === 'pending');
+      setPendingInvoices(invoices);
+      const navInvoice = (location.state as { invoice?: Invoice })?.invoice;
+      if (navInvoice && navInvoice.status === 'pending') {
+        setSelectedInvoice(navInvoice);
+        setStep('method');
+      } else if (invoices.length > 0) {
+        setSelectedInvoice(invoices[0]);
+      }
+      const methods = await db.getPaymentMethods(user.id);
+      setSavedMethods(methods);
+      const history = await db.getPaymentsByUser(user.id);
+      setPaymentHistory(history);
+    };
+    loadData();
   }, [user, location.state]);
 
   // OTP timer countdown
@@ -146,11 +152,14 @@ export default function PaymentPage() {
   }, [step]);
 
   // ---- Helpers ----
-  const refreshData = () => {
+  const refreshData = async () => {
     if (!user) return;
-    setPendingInvoices(db.getInvoicesByUser(user.id).filter(i => i.status === 'pending'));
-    setSavedMethods(db.getPaymentMethods(user.id));
-    setPaymentHistory(db.getPaymentsByUser(user.id));
+    const allInvoices = await db.getInvoicesByUser(user.id);
+    setPendingInvoices(allInvoices.filter(i => i.status === 'pending'));
+    const methods = await db.getPaymentMethods(user.id);
+    setSavedMethods(methods);
+    const history = await db.getPaymentsByUser(user.id);
+    setPaymentHistory(history);
   };
 
   const resetForm = () => {
@@ -255,7 +264,7 @@ export default function PaymentPage() {
         methodType = 'bank_transfer';
       }
 
-      const payment = db.processPayment(user.id, selectedInvoice.id, {
+      const payment = await db.processPayment(user.id, selectedInvoice.id, {
         method: methodLabel,
         method_type: methodType,
         card_brand: cBrand,
@@ -270,7 +279,7 @@ export default function PaymentPage() {
 
       // Save card if requested
       if (saveCard && paymentType === 'card') {
-        db.addPaymentMethod(user.id, {
+        await db.addPaymentMethod(user.id, {
           type: 'card',
           label: `•••• ${cLast4}`,
           last4: cLast4,
@@ -292,16 +301,20 @@ export default function PaymentPage() {
   };
 
   // ---- Payment Methods tab ----
-  const handleDeleteMethod = (id: string) => {
-    db.deletePaymentMethod(id);
-    if (user) setSavedMethods(db.getPaymentMethods(user.id));
+  const handleDeleteMethod = async (id: string) => {
+    await db.deletePaymentMethod(id);
+    if (user) {
+      const methods = await db.getPaymentMethods(user.id);
+      setSavedMethods(methods);
+    }
     if (selectedSavedId === id) setSelectedSavedId('');
   };
 
-  const handleSetDefault = (id: string) => {
+  const handleSetDefault = async (id: string) => {
     if (!user) return;
-    db.setDefaultPaymentMethod(user.id, id);
-    setSavedMethods(db.getPaymentMethods(user.id));
+    await db.setDefaultPaymentMethod(user.id, id);
+    const methods = await db.getPaymentMethods(user.id);
+    setSavedMethods(methods);
   };
 
   // ====================================================================

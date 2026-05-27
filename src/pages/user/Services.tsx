@@ -23,8 +23,13 @@ export default function Services() {
   const [showPlans, setShowPlans] = useState(false);
 
   useEffect(() => {
-    setServices(db.getAllServices().filter(s => s.status === 'active'));
-    setPlans(db.getAllPlans());
+    const loadData = async () => {
+      const allServices = await db.getAllServices();
+      setServices(allServices.filter(s => s.status === 'active'));
+      const allPlans = await db.getAllPlans();
+      setPlans(allPlans);
+    };
+    loadData();
   }, []);
 
   const filtered = services.filter(s =>
@@ -32,9 +37,9 @@ export default function Services() {
     s.category.toLowerCase().includes(search.toLowerCase())
   );
 
-  const handleSubscribe = (plan: Plan) => {
+  const handleSubscribe = async (plan: Plan) => {
     if (!user) return;
-    db.createSubscription(user.id, plan.id);
+    await db.createSubscription(user.id, plan.id);
     addToast(`Subscribed to ${plan.name} successfully!`, 'success');
     setShowPlans(false);
     setSelectedSvc(null);

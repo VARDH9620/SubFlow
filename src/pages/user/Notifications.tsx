@@ -12,34 +12,44 @@ export default function Notifications() {
   const { user, addToast } = useAuth();
   const [notifs, setNotifs] = useState<Notification[]>([]);
 
-  const refresh = () => { if (user) setNotifs(db.getNotifications(user.id)); };
-  useEffect(() => {
-    if (!user) return;
-    // Seed notifications if empty
-    if (db.getNotifications(user.id).length === 0) {
-      db.createNotification(user.id, { title: 'Welcome to SubFlow! 🎉', message: 'Your account is ready. Start by exploring our services and subscribing to a plan.', type: 'success' });
-      db.createNotification(user.id, { title: 'Complete your profile', message: 'Add your billing address and phone number for a better experience.', type: 'info' });
-      db.createNotification(user.id, { title: 'Check out Cloud Storage Pro', message: 'Enterprise-grade cloud storage with 99.9% uptime. Plans start at $9.99/mo.', type: 'info' });
-      db.createNotification(user.id, { title: 'Security tip', message: 'Enable two-factor authentication to protect your account.', type: 'warning' });
-      db.createNotification(user.id, { title: 'Invoice #INV-20250115 ready', message: 'Your invoice for Cloud Storage Pro has been generated. Due in 7 days.', type: 'info' });
-      db.createNotification(user.id, { title: 'Payment received ✅', message: 'Payment of $11.79 for Cloud Storage Pro was processed successfully.', type: 'success' });
-      db.createNotification(user.id, { title: 'Refer & earn!', message: 'Share your referral code and earn $10 credits for each friend who joins.', type: 'info' });
+  const refresh = async () => {
+    if (user) {
+      const list = await db.getNotifications(user.id);
+      setNotifs(list);
     }
-    refresh();
-  }, [user]);
-
-  const handleMarkAllRead = () => {
-    if (!user) return;
-    db.markAllNotificationsRead(user.id);
-    addToast('All notifications marked as read', 'success');
-    refresh();
   };
 
-  const handleClear = () => {
+  useEffect(() => {
     if (!user) return;
-    db.clearNotifications(user.id);
+    const load = async () => {
+      // Seed notifications if empty
+      const existing = await db.getNotifications(user.id);
+      if (existing.length === 0) {
+        await db.createNotification(user.id, { title: 'Welcome to SubFlow! 🎉', message: 'Your account is ready. Start by exploring our services and subscribing to a plan.', type: 'success' });
+        await db.createNotification(user.id, { title: 'Complete your profile', message: 'Add your billing address and phone number for a better experience.', type: 'info' });
+        await db.createNotification(user.id, { title: 'Check out Cloud Storage Pro', message: 'Enterprise-grade cloud storage with 99.9% uptime. Plans start at $9.99/mo.', type: 'info' });
+        await db.createNotification(user.id, { title: 'Security tip', message: 'Enable two-factor authentication to protect your account.', type: 'warning' });
+        await db.createNotification(user.id, { title: 'Invoice #INV-20250115 ready', message: 'Your invoice for Cloud Storage Pro has been generated. Due in 7 days.', type: 'info' });
+        await db.createNotification(user.id, { title: 'Payment received ✅', message: 'Payment of $11.79 for Cloud Storage Pro was processed successfully.', type: 'success' });
+        await db.createNotification(user.id, { title: 'Refer & earn!', message: 'Share your referral code and earn $10 credits for each friend who joins.', type: 'info' });
+      }
+      await refresh();
+    };
+    load();
+  }, [user]);
+
+  const handleMarkAllRead = async () => {
+    if (!user) return;
+    await db.markAllNotificationsRead(user.id);
+    addToast('All notifications marked as read', 'success');
+    await refresh();
+  };
+
+  const handleClear = async () => {
+    if (!user) return;
+    await db.clearNotifications(user.id);
     addToast('Notifications cleared', 'info');
-    refresh();
+    await refresh();
   };
 
   const unread = notifs.filter(n => !n.read).length;
@@ -74,7 +84,7 @@ export default function Notifications() {
                   <p className="text-xs text-muted-foreground/80 dark:text-slate-400 mt-1.5">{new Date(n.created_at).toLocaleString()}</p>
                 </div>
                 {!n.read && (
-                  <button onClick={() => { db.markNotificationRead(n.id); refresh(); }} className="text-xs text-primary font-medium hover:text-primary/90 flex-shrink-0 mt-1">
+                  <button onClick={async () => { await db.markNotificationRead(n.id); await refresh(); }} className="text-xs text-primary font-medium hover:text-primary/90 flex-shrink-0 mt-1">
                     Mark read
                   </button>
                 )}

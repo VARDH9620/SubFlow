@@ -17,12 +17,15 @@ export default function UserDashboard() {
 
   useEffect(() => {
     if (!user) return;
-    const userSubs = db.getSubscriptionsByUser(user.id);
-    setSubs(userSubs);
-    const userInvoices = db.getInvoicesByUser(user.id);
-    setInvoices(userInvoices);
-    const activeSpend = userSubs.filter(s => s.status === 'active').reduce((sum, s) => sum + (s.price || 0), 0);
-    setMonthlySpend(activeSpend);
+    const loadData = async () => {
+      const userSubs = await db.getSubscriptionsByUser(user.id);
+      setSubs(userSubs);
+      const userInvoices = await db.getInvoicesByUser(user.id);
+      setInvoices(userInvoices);
+      const activeSpend = userSubs.filter(s => s.status === 'active').reduce((sum, s) => sum + (s.price || 0), 0);
+      setMonthlySpend(activeSpend);
+    };
+    loadData();
   }, [user]);
 
   const activeSubs = subs.filter(s => s.status === 'active');

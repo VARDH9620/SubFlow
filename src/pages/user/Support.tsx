@@ -23,7 +23,12 @@ export default function Support() {
 
   const [createForm, setCreateForm] = useState({ subject: '', description: '', category: 'General', priority: 'medium' as 'low' | 'medium' | 'high' | 'critical' });
 
-  const refresh = () => { if (user) setTickets(db.getTicketsByUser(user.id)); };
+  const refresh = async () => {
+    if (user) {
+      const list = await db.getTicketsByUser(user.id);
+      setTickets(list);
+    }
+  };
 
   useEffect(() => { refresh(); }, [user]);
 
@@ -36,25 +41,27 @@ export default function Support() {
 
   const filtered = tab === 'all' ? tickets : tickets.filter(t => t.status === tab);
 
-  const handleCreate = () => {
+  const handleCreate = async () => {
     if (!user) return;
-    db.createTicket(user.id, createForm);
+    await db.createTicket(user.id, createForm);
     addToast('Ticket created successfully', 'success');
     setShowCreate(false);
     setCreateForm({ subject: '', description: '', category: 'General', priority: 'medium' });
-    refresh();
+    await refresh();
   };
 
-  const handleViewTicket = (ticket: SupportTicket) => {
+  const handleViewTicket = async (ticket: SupportTicket) => {
     setSelectedTicket(ticket);
-    setMessages(db.getMessagesByTicket(ticket.id));
+    const list = await db.getMessagesByTicket(ticket.id);
+    setMessages(list);
   };
 
-  const handleReply = () => {
+  const handleReply = async () => {
     if (!user || !selectedTicket || !newMessage.trim()) return;
-    db.addTicketMessage(selectedTicket.id, user.id, 'user', newMessage);
+    await db.addTicketMessage(selectedTicket.id, user.id, 'user', newMessage);
     setNewMessage('');
-    setMessages(db.getMessagesByTicket(selectedTicket.id));
+    const list = await db.getMessagesByTicket(selectedTicket.id);
+    setMessages(list);
   };
 
   return (

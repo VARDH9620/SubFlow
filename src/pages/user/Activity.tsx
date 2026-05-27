@@ -22,26 +22,11 @@ export default function ActivityLog() {
 
   useEffect(() => {
     if (!user) return;
-    // Generate some seed activity
-    const seedLogs = [
-      { action: 'login', entity_type: 'session', entity_id: '', details: 'Logged in from Chrome on macOS' },
-      { action: 'subscribe', entity_type: 'subscription', entity_id: '', details: 'Subscribed to Cloud Storage Pro — Starter' },
-      { action: 'payment', entity_type: 'invoice', entity_id: '', details: 'Payment of $11.79 processed (Visa •••• 4242)' },
-      { action: 'update', entity_type: 'profile', entity_id: '', details: 'Updated phone number' },
-      { action: 'create', entity_type: 'ticket', entity_id: '', details: 'Created support ticket: "Storage quota not updating"' },
-      { action: 'login', entity_type: 'session', entity_id: '', details: 'Logged in from Safari on iPhone' },
-      { action: 'subscribe', entity_type: 'subscription', entity_id: '', details: 'Subscribed to DevOps Pipeline — Basic' },
-      { action: 'payment', entity_type: 'invoice', entity_id: '', details: 'Payment of $23.59 processed (Visa •••• 4242)' },
-      { action: 'update', entity_type: 'subscription', entity_id: '', details: 'Paused Cloud Storage Pro subscription' },
-      { action: 'login', entity_type: 'session', entity_id: '', details: 'Logged in from Firefox on Windows' },
-      { action: 'payment', entity_type: 'invoice', entity_id: '', details: 'Payment of $23.59 processed (Visa •••• 4242)' },
-      { action: 'update', entity_type: 'profile', entity_id: '', details: 'Changed password' },
-    ];
-    seedLogs.forEach((l, i) => {
-      const d = new Date(); d.setHours(d.getHours() - i * 5);
-      db.addAuditLog(user.id, l.action, l.entity_type, l.entity_id, l.details);
-    });
-    setLogs(db.getUserActivityLog(user.id));
+    const loadData = async () => {
+      const userLogs = await db.getUserActivityLog(user.id);
+      setLogs(userLogs);
+    };
+    loadData();
   }, [user]);
 
   const filtered = logs.filter(l =>

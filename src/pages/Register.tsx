@@ -36,7 +36,7 @@ export default function Register() {
   const set = (key: string, val: string) => setForm(p => ({ ...p, [key]: val }));
 
   // Handle form submission → send OTP
-  const handleFormSubmit = (e: FormEvent) => {
+  const handleFormSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
 
@@ -46,19 +46,23 @@ export default function Register() {
     if (!/\d/.test(form.password)) { setError('Password must contain at least one number'); return; }
 
     setLoading(true);
-    setTimeout(() => {
+    try {
       // Check if email already exists
-      if (db.checkEmailExists(form.email)) {
+      const exists = await db.checkEmailExists(form.email);
+      if (exists) {
         setError('An account with this email already exists');
         setLoading(false);
         return;
       }
       // Send OTP
-      db.generateOTP(form.email);
+      await db.generateOTP(form.email);
       setStep('otp');
       setResendTimer(30);
+    } catch (err: any) {
+      setError(err instanceof Error ? err.message : 'An error occurred');
+    } finally {
       setLoading(false);
-    }, 600);
+    }
   };
 
   // Handle OTP verification
@@ -69,35 +73,44 @@ export default function Register() {
     setVerifying(true);
     setOtpError('');
 
-    await new Promise(r => setTimeout(r, 1200));
+    await new Promise(r => setTimeout(r, 600));
 
-    const result = db.verifyOTP(form.email, code);
-    if (!result.valid) {
-      setOtpError(result.error || 'Invalid OTP');
+    try {
+      const result = await db.verifyOTP(form.email, code);
+      if (!result.valid) {
+        setOtpError(result.error || 'Invalid OTP');
+        setVerifying(false);
+        return;
+      }
+
+      // Create the user (verified)
+      const user = await db.registerUser({ ...form, is_verified: true });
+      if (!user) {
+        setOtpError('Failed to create account. Please try again.');
+        setVerifying(false);
+        return;
+      }
+
+      // Auto-login
+      await login(form.email, form.password);
+      setStep('success');
+    } catch (err: any) {
+      setOtpError(err instanceof Error ? err.message : 'Verification failed');
+    } finally {
       setVerifying(false);
-      return;
     }
-
-    // Create the user (verified)
-    const user = db.registerUser({ ...form, is_verified: true });
-    if (!user) {
-      setOtpError('Failed to create account. Please try again.');
-      setVerifying(false);
-      return;
-    }
-
-    // Auto-login
-    login(form.email, form.password);
-    setStep('success');
-    setVerifying(false);
   };
 
-  const handleResendOTP = () => {
-    db.generateOTP(form.email);
-    setResendTimer(30);
-    setResendCount(c => c + 1);
-    setOtp(Array(6).fill(''));
-    setOtpError('');
+  const handleResendOTP = async () => {
+    try {
+      await db.generateOTP(form.email);
+      setResendTimer(30);
+      setResendCount(c => c + 1);
+      setOtp(Array(6).fill(''));
+      setOtpError('');
+    } catch (err: any) {
+      setOtpError(err instanceof Error ? err.message : 'Failed to resend OTP');
+    }
   };
 
   // Resend timer countdown

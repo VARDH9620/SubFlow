@@ -23,38 +23,50 @@ export default function ForgotPassword() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [resetError, setResetError] = useState('');
 
-  const handleEmailSubmit = (e: FormEvent) => {
+  const handleEmailSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setEmailError('');
     if (!email.trim()) { setEmailError('Enter your email address'); return; }
 
     setLoading(true);
-    setTimeout(() => {
-      if (!db.checkEmailExists(email)) {
+    try {
+      const exists = await db.checkEmailExists(email);
+      if (!exists) {
         // Don't reveal whether email exists — security best practice
         // But for demo UX, we'll show a helpful message
         setEmailError('No account found with this email address');
         setLoading(false);
         return;
       }
-      db.generateOTP(email);
+      await db.generateOTP(email);
       setStep('otp');
+    } catch (err: any) {
+      setEmailError(err instanceof Error ? err.message : 'An error occurred');
+    } finally {
       setLoading(false);
-    }, 800);
+    }
   };
 
-  const handleVerifyOTP = (code: string) => {
-    const result = db.verifyOTP(email, code);
-    if (!result.valid) return result;
-    setStep('reset');
-    return { valid: true };
+  const handleVerifyOTP = async (code: string) => {
+    try {
+      const result = await db.verifyOTP(email, code);
+      if (!result.valid) return result;
+      setStep('reset');
+      return { valid: true };
+    } catch (err: any) {
+      return { valid: false, error: err.message };
+    }
   };
 
-  const handleResendOTP = () => {
-    db.generateOTP(email);
+  const handleResendOTP = async () => {
+    try {
+      await db.generateOTP(email);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  const handleResetPassword = (e: FormEvent) => {
+  const handleResetPassword = async (e: FormEvent) => {
     e.preventDefault();
     setResetError('');
 
@@ -76,11 +88,14 @@ export default function ForgotPassword() {
     }
 
     setLoading(true);
-    setTimeout(() => {
-      db.resetPassword(email, newPassword);
+    try {
+      await db.resetPassword(email, newPassword);
       setStep('success');
+    } catch (err: any) {
+      setResetError(err instanceof Error ? err.message : 'Failed to reset password');
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   return (

@@ -27,8 +27,8 @@ export default function Login() {
     e.preventDefault();
     setError('');
     setLoading(true);
-    setTimeout(() => {
-      const err = login(email, password, rememberMe);
+    setTimeout(async () => {
+      const err = await login(email, password, rememberMe);
       if (err) { setError(err); setLoading(false); }
       else { navigate(email === 'admin@subflow.io' ? '/admin' : '/dashboard'); }
     }, 500);
