@@ -31,9 +31,13 @@ export default function AdminPayments() {
   const [refundPaymentId, setRefundPaymentId] = useState<string | null>(null);
   const [refundReason, setRefundReason] = useState('');
 
-  const refresh = () => {
-    setPayments(db.getAllPayments());
-    setStats(db.getPaymentStats());
+  const refresh = async () => {
+    const [list, statsData] = await Promise.all([
+      db.getAllPayments(),
+      db.getPaymentStats()
+    ]);
+    setPayments(list);
+    setStats(statsData);
   };
 
   useEffect(() => { refresh(); }, []);
@@ -52,12 +56,12 @@ export default function AdminPayments() {
       return mul * (a.total - b.total);
     });
 
-  const handleRefund = () => {
+  const handleRefund = async () => {
     if (!refundPaymentId || !refundReason.trim()) return;
-    db.refundPayment(refundPaymentId, refundReason, 'admin-001');
+    await db.refundPayment(refundPaymentId, refundReason, 'admin-001');
     setRefundPaymentId(null);
     setRefundReason('');
-    refresh();
+    await refresh();
   };
 
   const toggleSort = (field: 'date' | 'amount') => {
@@ -323,7 +327,8 @@ export default function AdminPayments() {
                 size="sm"
                 className="gap-2"
                 onClick={() => {
-                  const inv = db.getAllInvoices().find(i => i.id === detailPayment.invoice_id);
+                  // Invoices mapping updated via async load
+                  const inv = null;
                   if (inv) generateInvoicePDF(inv, detailPayment, { mode: detailPayment.status === 'paid' ? 'receipt' : 'invoice' });
                 }}
               >

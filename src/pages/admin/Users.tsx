@@ -13,7 +13,7 @@ export default function AdminUsers() {
   const [selected, setSelected] = useState<User | null>(null);
   const [editForm, setEditForm] = useState({ first_name: '', last_name: '', email: '', phone: '', role: 'user' as UserRole });
 
-  const refresh = () => setUsers(db.getAllUsers());
+  const refresh = async () => setUsers(await db.getAllUsers());
 
   useEffect(() => { refresh(); }, []);
 
@@ -27,19 +27,19 @@ export default function AdminUsers() {
     setShowEdit(true);
   };
 
-  const handleSaveEdit = () => {
+  const handleSaveEdit = async () => {
     if (!selected) return;
-    db.updateUser(selected.id, editForm);
+    await db.updateUser(selected.id, editForm);
     setShowEdit(false);
-    refresh();
+    await refresh();
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (!selected) return;
-    db.deleteUser(selected.id);
+    await db.deleteUser(selected.id);
     setShowDelete(false);
     setSelected(null);
-    refresh();
+    await refresh();
   };
 
   return (

@@ -12,8 +12,8 @@ export default function AdminSettings() {
   const [siteName, setSiteName] = useState('SubFlow');
   const [trialDays, setTrialDays] = useState('14');
 
-  const handleReset = () => {
-    resetDatabase();
+  const handleReset = async () => {
+    await resetDatabase();
     addToast('Database has been reset to defaults', 'info');
     setShowReset(false);
     setTimeout(() => window.location.reload(), 1000);

@@ -32,7 +32,7 @@ export default function AdminServices() {
   const [form, setForm] = useState(emptyForm);
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
-  const refresh = () => setServices(db.getAllServices());
+  const refresh = async () => setServices(await db.getAllServices());
   useEffect(() => { refresh(); }, []);
 
   const filtered = services.filter(s => s.name.toLowerCase().includes(search.toLowerCase()) || s.category.toLowerCase().includes(search.toLowerCase()));

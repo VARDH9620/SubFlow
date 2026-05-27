@@ -11,7 +11,13 @@ export default function AdminRevenue() {
   const [tab, setTab] = useState('all');
   const [search, setSearch] = useState('');
 
-  useEffect(() => { setInvoices(db.getAllInvoices()); }, []);
+  useEffect(() => {
+    const loadData = async () => {
+      const list = await db.getAllInvoices();
+      setInvoices(list);
+    };
+    loadData();
+  }, []);
 
   const tabs = [
     { key: 'all', label: 'All', count: invoices.length },
@@ -42,8 +48,8 @@ export default function AdminRevenue() {
     });
   })();
 
-  const handleDownload = (inv: Invoice) => {
-    const payments = db.getAllPayments();
+  const handleDownload = async (inv: Invoice) => {
+    const payments = await db.getAllPayments();
     const payment = payments.find(p => p.invoice_id === inv.id);
     generateInvoicePDF(inv, payment);
   };

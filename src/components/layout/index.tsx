@@ -81,17 +81,33 @@ export function UserLayout() {
 
   useEffect(() => {
     if (!user) return;
-    const n = db.getNotifications(user.id);
-    setNotifCount(n.filter(x => !x.read).length);
-    setNotifs(n.slice(0, 5));
-    const prog = db.getOnboardingProgress(user.id);
-    const steps = db.getOnboardingSteps(user.id);
-    setOnboarding({ progress: prog, steps });
-    if (prog < 100) setShowOnboarding(true);
+    const loadNotifs = async () => {
+      try {
+        const n = await db.getNotifications(user.id);
+        setNotifCount(n.filter(x => !x.read).length);
+        setNotifs(n.slice(0, 5));
+        const prog = await db.getOnboardingProgress(user.id);
+        const steps = await db.getOnboardingSteps(user.id);
+        setOnboarding({ progress: prog, steps });
+        if (prog < 100) setShowOnboarding(true);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    loadNotifs();
   }, [user, location.pathname]);
 
-  const handleNotifClick = (id: string) => {
-    if (user) { db.markNotificationRead(id); setNotifCount(db.getNotifications(user.id).filter(x => !x.read).length); setNotifs(db.getNotifications(user.id).slice(0, 5)); }
+  const handleNotifClick = async (id: string) => {
+    if (user) {
+      try {
+        await db.markNotificationRead(id);
+        const n = await db.getNotifications(user.id);
+        setNotifCount(n.filter(x => !x.read).length);
+        setNotifs(n.slice(0, 5));
+      } catch (err) {
+        console.error(err);
+      }
+    }
     setNotifOpen(false);
     navigate('/notifications');
   };

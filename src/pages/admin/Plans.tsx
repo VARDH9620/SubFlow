@@ -16,7 +16,11 @@ export default function AdminPlans() {
   const [form, setForm] = useState(emptyForm);
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
-  const refresh = () => { setPlans(db.getAllPlans()); setServices(db.getAllServices()); };
+  const refresh = async () => {
+    const [plns, svcs] = await Promise.all([db.getAllPlans(), db.getAllServices()]);
+    setPlans(plns);
+    setServices(svcs);
+  };
   useEffect(() => { refresh(); }, []);
 
   const filtered = plans
@@ -33,7 +37,13 @@ export default function AdminPlans() {
     refresh();
   };
 
-  const handleDelete = () => { if (deleteId) { db.deletePlan(deleteId); setDeleteId(null); refresh(); } };
+  const handleDelete = async () => {
+    if (deleteId) {
+      await db.deletePlan(deleteId);
+      setDeleteId(null);
+      await refresh();
+    }
+  };
 
   const addFeature = () => setForm(p => ({ ...p, features: [...p.features, ''] }));
   const removeFeature = (i: number) => setForm(p => ({ ...p, features: p.features.filter((_, j) => j !== i) }));

@@ -15,11 +15,21 @@ export default function AdminDashboard() {
   const [catData, setCatData] = useState<{ name: string; value: number }[]>([]);
 
   useEffect(() => {
-    setStats(db.getAdminDashboardStats());
-    setRevenueData(db.getRevenueChartData());
-    setUserData(db.getUserGrowthChartData());
-    setSubData(db.getSubscriptionChartData());
-    setCatData(db.getCategoryDistribution());
+    const loadData = async () => {
+      const [statsRes, revRes, usersRes, subsRes, catRes] = await Promise.all([
+        db.getAdminDashboardStats(),
+        db.getRevenueChartData(),
+        db.getUserGrowthChartData(),
+        db.getSubscriptionChartData(),
+        db.getCategoryDistribution(),
+      ]);
+      setStats(statsRes);
+      setRevenueData(revRes);
+      setUserData(usersRes);
+      setSubData(subsRes);
+      setCatData(catRes);
+    };
+    loadData();
   }, []);
 
   if (!stats) return null;

@@ -17,7 +17,7 @@ export default function AdminSupport() {
   const [reply, setReply] = useState('');
   const [statusChange, setStatusChange] = useState('');
 
-  const refresh = () => setTickets(db.getAllTickets());
+  const refresh = async () => setTickets(await db.getAllTickets());
   useEffect(() => { refresh(); }, []);
 
   const tabs = [
@@ -32,23 +32,29 @@ export default function AdminSupport() {
     .filter(t => tab === 'all' || t.status === tab)
     .filter(t => search === '' || t.subject.toLowerCase().includes(search.toLowerCase()) || (t.user_email || '').toLowerCase().includes(search.toLowerCase()));
 
-  const openTicket = (ticket: SupportTicket) => {
+  const openTicket = async (ticket: SupportTicket) => {
     setSelected(ticket);
-    setMessages(db.getMessagesByTicket(ticket.id));
     setStatusChange(ticket.status);
+    try {
+      const list = await db.getMessagesByTicket(ticket.id);
+      setMessages(list);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  const handleReply = () => {
+  const handleReply = async () => {
     if (!selected || !reply.trim()) return;
-    db.addTicketMessage(selected.id, 'admin-001', 'admin', reply);
+    await db.addTicketMessage(selected.id, 'admin-001', 'admin', reply);
     setReply('');
-    setMessages(db.getMessagesByTicket(selected.id));
+    const list = await db.getMessagesByTicket(selected.id);
+    setMessages(list);
   };
 
-  const handleStatusUpdate = () => {
+  const handleStatusUpdate = async () => {
     if (!selected) return;
-    db.updateTicket(selected.id, { status: statusChange as TicketStatus, assigned_to: 'admin-001' });
-    refresh();
+    await db.updateTicket(selected.id, { status: statusChange as any, assigned_to: 'admin-001' });
+    await refresh();
     setSelected(null);
   };
 

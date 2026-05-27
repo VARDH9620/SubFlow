@@ -15,7 +15,7 @@ export default function AdminSubscriptions() {
   const [actionSub, setActionSub] = useState<Subscription | null>(null);
   const [newStatus, setNewStatus] = useState<SubscriptionStatus>('active');
 
-  const refresh = () => setSubs(db.getAllSubscriptions());
+  const refresh = async () => setSubs(await db.getAllSubscriptions());
   useEffect(() => { refresh(); }, []);
 
   const tabs = [
@@ -29,11 +29,11 @@ export default function AdminSubscriptions() {
     .filter(s => tab === 'all' || s.status === tab)
     .filter(s => search === '' || (s.user_email || '').toLowerCase().includes(search.toLowerCase()) || (s.service_name || '').toLowerCase().includes(search.toLowerCase()));
 
-  const handleStatusChange = () => {
+  const handleStatusChange = async () => {
     if (!actionSub) return;
-    db.updateSubscriptionStatus(actionSub.id, newStatus);
+    await db.updateSubscriptionStatus(actionSub.id, newStatus);
     setActionSub(null);
-    refresh();
+    await refresh();
   };
 
   return (

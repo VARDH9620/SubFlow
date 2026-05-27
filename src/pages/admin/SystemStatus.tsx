@@ -14,7 +14,13 @@ export default function SystemStatus() {
   const [status, setStatus] = useState<SystemStatus | null>(null);
   const [expandedIncident, setExpandedIncident] = useState<number | null>(0);
 
-  useEffect(() => { setStatus(db.getSystemStatus()); }, []);
+  useEffect(() => {
+    const loadData = async () => {
+      const s = await db.getSystemStatus();
+      setStatus(s);
+    };
+    loadData();
+  }, []);
 
   if (!status) return null;
 
